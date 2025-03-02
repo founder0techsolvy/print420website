@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Successful</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #f8f8f8;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            margin: auto;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            color: #FF0000;
+            font-size: 24px;
+        }
+        .checkmark {
+            font-size: 50px;
+            color: #FF0000;
+            animation: bounce 1s ease-in-out;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        .details {
+            text-align: left;
+            margin-top: 20px;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            margin-top: 20px;
+            text-decoration: none;
+            background: #d40000;
+            color: white;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+        .btn:hover {
+            background: #a00000;
+        }
+        canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="checkmark">✔</div>
+        <h1>Order Placed Successfully!</h1>
+        <p>Thank you for your order. Your order details are below:</p>
+
+        <div class="details">
+            <p><strong>Order Name:</strong> <span id="orderName"></span></p>
+            <p><strong>Price:</strong> ₹<span id="orderPrice"></span></p>
+            <p><strong>Payment ID:</strong> <span id="paymentId"></span></p>
+            <p><strong>Status:</strong> <span id="paymentStatus"></span></p>
+        </div>
+
+        <a href="index.html" class="btn">Go to Home</a>
+        <button class="btn" onclick="generateReceipt()">Download Receipt</button>
+    </div>
+
+    <!-- ✅ Hidden Canvas for Receipt -->
+    <canvas id="receiptCanvas"></canvas>
+
+    <script>
+        // ✅ Load Order Details from sessionStorage
+        function loadOrderSuccessDetails() {
+            const paymentData = JSON.parse(sessionStorage.getItem("paymentDetails"));
+
+            if (!paymentData) {
+                document.body.innerHTML = "<h1>❌ No Order Found!</h1><p>Please place an order first.</p>";
+                return;
+            }
+
+            document.getElementById("orderName").textContent = paymentData.orderDetails.name;
+            document.getElementById("orderPrice").textContent = paymentData.orderDetails.price.replace("₹", "");
+            document.getElementById("paymentId").textContent = paymentData.paymentId;
+            document.getElementById("paymentStatus").textContent = paymentData.paymentStatus;
+        }
+
+        // ✅ Generate Image Receipt using Canvas
+        function generateReceipt() {
+            const canvas = document.getElementById("receiptCanvas");
+            const ctx = canvas.getContext("2d");
+
+            // ✅ Set Canvas Size
+            canvas.width = 500;
+            canvas.height = 300;
+
+            // ✅ Background
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // ✅ Header
+            ctx.fillStyle = "#d40000";
+            ctx.fillRect(0, 0, canvas.width, 60);
+            ctx.fillStyle = "#fff";
+            ctx.font = "bold 20px Arial";
+            ctx.fillText("PRINT 420 ORDER RECEIPT", 120, 40);
+
+            // ✅ Order Details
+            ctx.fillStyle = "#000";
+            ctx.font = "16px Arial";
+            ctx.fillText("🎉 Order Successful!", 20, 90);
+            ctx.fillText(`🛍 Order Name: ${document.getElementById("orderName").textContent}`, 20, 120);
+            ctx.fillText(`💰 Price: ₹${document.getElementById("orderPrice").textContent}`, 20, 150);
+            ctx.fillText(`🆔 Payment ID: ${document.getElementById("paymentId").textContent}`, 20, 180);
+            ctx.fillText(`✅ Status: ${document.getElementById("paymentStatus").textContent}`, 20, 210);
+
+            // ✅ Footer
+            ctx.fillStyle = "#555";
+            ctx.font = "12px Arial";
+            ctx.fillText("Thank you for choosing Print 420!", 20, 260);
+            ctx.fillText("Visit us: www.print420.in", 20, 280);
+
+            // ✅ Download Image
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL("image/png");
+            link.download = "Order_Receipt.png";
+            link.click();
+        }
+
+        // ✅ Run function on page load
+        window.onload = loadOrderSuccessDetails;
+    </script>
+
+</body>
+</html>
