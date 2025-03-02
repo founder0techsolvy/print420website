@@ -110,7 +110,7 @@ document.getElementById("placeOrderBtn").addEventListener("click", function() {
         email: userEmail,
         contact: orderDetails.mobile
     },
-    theme: { color: "linear-gradient(135deg, #FFB3B3, #FFD1C1)" },
+   theme: { color: "#FFB3B3" },
     modal: { ondismiss: function() { alert("⚠ Payment was cancelled. Please try again."); } }
   };
 
