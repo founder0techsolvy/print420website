@@ -121,3 +121,17 @@ document.getElementById("forgotPasswordLink")?.addEventListener("click", async (
     alert(error.message);
   }
 });
+
+
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    // ✅ लॉगिन हो चुका है, अब चेक करें कि पहले कोई redirect URL था या नहीं
+    const redirectUrl = sessionStorage.getItem("redirectAfterLogin");
+
+    if (redirectUrl) {
+      // ✅ Redirect URL इस्तेमाल कर लो और फिर इसे हटा दो
+      sessionStorage.removeItem("redirectAfterLogin");
+      window.location.href = redirectUrl;
+    } 
+  }
+});
