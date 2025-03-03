@@ -25,16 +25,17 @@
     
     </script>
     <script type="module">
-      // ✅ Import Firebase SDK v9+
+// ✅ Firebase SDK Import
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 // ✅ Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBaDy2PoG_-KZVYoraD3tpU_C8CUvKQYQk",
   authDomain: "print420-bbf5b.firebaseapp.com",
   projectId: "print420-bbf5b",
-  storageBucket: "print420-bbf5b.firebasestorage.app",
+  storageBucket: "print420-bbf5b.appspot.com",
   messagingSenderId: "240976479161",
   appId: "1:240976479161:web:930be6bdf355e041df2c68",
   measurementId: "G-M0LMNP8EYK"
@@ -42,7 +43,8 @@ const firebaseConfig = {
 
 // ✅ Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const auth = getAuth();
+const db = getFirestore();
 
 // ✅ Show Loader
 function showLoader() {
@@ -60,77 +62,87 @@ function showError(message) {
   document.getElementById("errorMessage").style.display = "block";
 }
 
-// ✅ Fetch Orders from Firestore
-async function fetchOrders() {
+// ✅ Fetch Orders (Only for Logged-in Users)
+function fetchOrders() {
   showLoader();
-  try {
-    const querySnapshot = await getDocs(collection(db, "orders"));
-    hideLoader();
-    
-    if (querySnapshot.empty) {
-      showError("No orders found! Please try again later.");
+  
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      hideLoader();
+      showError("⚠️ Please login to view your orders.");
       return;
     }
     
-    let ordersHTML = "";
-    querySnapshot.forEach((doc) => {
-      const order = doc.data();
+    try {
+      // ✅ केवल Logged-in User के Orders लोड करो
+      const ordersQuery = query(collection(db, "orders"), where("uid", "==", user.uid));
+      const querySnapshot = await getDocs(ordersQuery);
+      hideLoader();
       
-      // ✅ Image Handling
-      let imagesHTML = "";
-      if (order.image1 && order.image2) {
-        imagesHTML = `
-                    <div class="image-container">
-                        <img src="${order.image1}" alt="Order Image 1" class="order-img">
-                        <img src="${order.image2}" alt="Order Image 2" class="order-img">
-                    </div>`;
-      } else if (order.image1) {
-        imagesHTML = `<img src="${order.image1}" alt="Order Image" class="order-img single">`;
+      if (querySnapshot.empty) {
+        showError("❌ No orders found!");
+        return;
       }
       
-      ordersHTML += `
-                <div class="order-card" data-order-id="${doc.id}">
-                    ${imagesHTML}
-                    <div class="order-details">
-                        <p><strong>Order ID:</strong> ${doc.id}</p>
-                        <p><strong>Name:</strong> ${order.name}</p>
-                        <p><strong>Price:</strong> ${order.price}</p>
-                        <p><strong>Address:</strong> ${order.address}, ${order.city}, ${order.state}, ${order.pincode}</p>
-                        <p><strong>Mobile:</strong> ${order.mobile}</p>
-                        <p><strong>Payment ID:</strong> ${order.paymentId}</p>
-                        <p><strong>Status:</strong> ${order.status}</p>
-                    </div>
-                    <button class="btn" onclick="downloadReceipt('${doc.id}')">📄 Download Receipt</button>
-                </div>
-            `;
-    });
-    document.getElementById("ordersContainer").innerHTML = ordersHTML;
-  } catch (error) {
-    hideLoader();
-    showError("❌ Error loading orders: " + error.message);
-  }
+      let ordersHTML = "";
+      querySnapshot.forEach((doc) => {
+        const order = doc.data();
+        
+        // ✅ Image Handling
+        let imagesHTML = "";
+        if (order.image1 && order.image2) {
+          imagesHTML = `
+                        <div class="image-container">
+                            <img src="${order.image1}" alt="Order Image 1" class="order-img">
+                            <img src="${order.image2}" alt="Order Image 2" class="order-img">
+                        </div>`;
+        } else if (order.image1) {
+          imagesHTML = `<img src="${order.image1}" alt="Order Image" class="order-img single">`;
+        }
+        
+        ordersHTML += `
+                    <div class="order-card" data-order-id="${doc.id}">
+                        ${imagesHTML}
+                        <div class="order-details">
+                            <p><strong>Order ID:</strong> ${doc.id}</p>
+                            <p><strong>Name:</strong> ${order.name}</p>
+                            <p><strong>Price:</strong> ${order.price}</p>
+                            <p><strong>Address:</strong> ${order.address}, ${order.city}, ${order.state}, ${order.pincode}</p>
+                            <p><strong>Mobile:</strong> ${order.mobile}</p>
+                            <p><strong>Payment ID:</strong> ${order.paymentId}</p>
+                            <p><strong>Status:</strong> ${order.status}</p>
+                        </div>
+                        <button class="btn" onclick="downloadReceipt('${doc.id}')">📄 Download Receipt</button>
+                    </div>`;
+      });
+      document.getElementById("ordersContainer").innerHTML = ordersHTML;
+    } catch (error) {
+      hideLoader();
+      showError("❌ Error loading orders: " + error.message);
+    }
+  });
 }
 
-// ✅ Function to Download Order Receipt as PDF using html2pdf.js
+// ✅ Function to Download Order Receipt as PDF
 window.downloadReceipt = function(orderId) {
   const orderCard = document.querySelector(`[data-order-id="${orderId}"]`);
   
   if (!orderCard) {
-    alert("Order not found!");
+    alert("❌ Order not found!");
     return;
   }
   
-  // ✅ Clone Order Card to Avoid Layout Issues
+  // ✅ Clone Order Card for Better Formatting
   const clonedCard = orderCard.cloneNode(true);
-  clonedCard.style.width = "100%"; // Ensure full width for PDF
-  clonedCard.style.padding = "20px"; // Add padding for better look
-  clonedCard.style.fontSize = "16px"; // Increase font size
+  clonedCard.style.width = "100%";
+  clonedCard.style.padding = "20px";
+  clonedCard.style.fontSize = "16px";
   
-  // ✅ Create a Container for Better Formatting
+  // ✅ Create a Container for PDF
   const container = document.createElement("div");
-  container.style.width = "600px"; // Fix width to ensure everything fits
+  container.style.width = "600px";
   container.style.margin = "auto";
-  container.style.background = "#fff"; // Ensure background color
+  container.style.background = "#fff";
   container.style.padding = "20px";
   container.appendChild(clonedCard);
   
@@ -144,6 +156,16 @@ window.downloadReceipt = function(orderId) {
   
   html2pdf().from(container).set(options).save();
 };
+
+// ✅ Logout Functionality
+document.getElementById("logoutBtn")?.addEventListener("click", () => {
+  signOut(auth).then(() => {
+    alert("✅ Logged out successfully!");
+    window.location.href = "login.html";
+  }).catch((error) => {
+    alert("❌ Error logging out: " + error.message);
+  });
+});
 
 // ✅ Load Orders on Page Load
 window.onload = fetchOrders;
@@ -190,4 +212,4 @@ window.onload = fetchOrders;
     </div>
 </footer>
 </body>
-</html>
+        </html>
