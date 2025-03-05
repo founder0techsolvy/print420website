@@ -1,70 +1,26 @@
 // ✅ Firebase Import
-
-
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js";
 
-
-
 // ✅ Firebase Configuration
-
-
-
 const firebaseConfig = {
-
-
-
-apiKey: "AIzaSyBaDy2PoG_-KZVYoraD3tpU_C8CUvKQYQk",
-
-
-
-authDomain: "print420-bbf5b.firebaseapp.com",
-
-
-
-projectId: "print420-bbf5b",
-
-
-
-storageBucket: "print420-bbf5b.firebasestorage.app",
-
-
-
-messagingSenderId: "240976479161",
-
-
-
-appId: "1:240976479161:web:930be6bdf355e041df2c68",
-
-
-
-measurementId: "G-M0LMNP8EYK"
-
-
-
+  apiKey: "AIzaSyBaDy2PoG_-KZVYoraD3tpU_C8CUvKQYQk",
+  authDomain: "print420-bbf5b.firebaseapp.com",
+  projectId: "print420-bbf5b",
+  storageBucket: "print420-bbf5b.firebasestorage.app",
+  messagingSenderId: "240976479161",
+  appId: "1:240976479161:web:930be6bdf355e041df2c68",
+  measurementId: "G-M0LMNP8EYK"
 };
 
-
-
 // ✅ Firebase Initialize
-
-
-
 const app = initializeApp(firebaseConfig);
-
-
-
 const auth = getAuth(app);
-
-
-
 const db = getFirestore(app);
+const storage = getStorage(app); // ✅ Initialize Storage
+
 
 
 
@@ -701,102 +657,57 @@ console.log("✅ Loader Removed");
 
 
 // ✅ Save Order with Image to Firebase Firestore
-
+// ✅ Save Order with Image to Firebase Firestore
 async function saveOrderToFirebase(order, imageFile) {
-
   try {
-
     showLoader(); // ✅ Show Loader
 
-
-
     // ✅ Get Current User UID
-
     const user = auth.currentUser;
-
     if (!user) {
-
       alert("❌ Error: User not authenticated.");
-
       hideLoader();
-
       return;
-
     }
-
-
 
     // ✅ Get Current Date & Time (Formatted)
-
     const now = new Date();
-
     const formattedDateTime = now.toLocaleString("en-IN", { 
-
       day: "2-digit", month: "2-digit", year: "numeric", 
-
       hour: "2-digit", minute: "2-digit", second: "2-digit",
-
       hour12: true 
-
     });
 
-
-
     // ✅ Upload Image to Firebase Storage (if available)
-
     let imageUrl = null;
-
     if (imageFile) {
-
       const storageRef = ref(storage, `orders/${user.uid}/${Date.now()}-${imageFile.name}`);
-
       const snapshot = await uploadBytes(storageRef, imageFile);
-
       imageUrl = await getDownloadURL(snapshot.ref);
-
     }
 
-
-
     // ✅ Prepare Order Data
-
     const orderWithDateTime = {
-
       ...order,
-
       uid: user.uid,   // ✅ Store User UID
-
       createdAt: formattedDateTime, // ✅ Store Readable Date & Time
-
       imageUrl: imageUrl // ✅ Store Image URL (if uploaded)
-
     };
 
-
-
     // ✅ Save Order to Firestore
-
     await addDoc(collection(db, "orders"), orderWithDateTime);
 
-
-
     hideLoader(); // ✅ Hide Loader
-
     window.location.href = "order-success.html";
 
-
-
   } catch (error) {
-
     hideLoader(); // ✅ Hide Loader on Error
-
     alert("❌ Error Saving Order: " + error.message);
-
   }
-
 }
 
-
+// ... (बाकी कोड वही रहेगा)
+                             
 
 // ✅ Retrieve Payment Details
 
