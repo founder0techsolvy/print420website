@@ -655,99 +655,69 @@ console.log("✅ Loader Removed");
 }
 
 
-
-
-async function saveOrderToFirebase(orderDetails) {
+ async function saveOrder(orderDetails) {
   try {
     startLoader();
-
     const user = auth.currentUser;
     if (!user) throw new Error("❌ Please log in first");
 
-    console.log("📝 Order saving process started...");
+    console.log("📤 Uploading images...");
 
-    // ✅ Function to upload images
-    async function uploadImageToStorage(imageData, imageName) {
+    // ✅ Function to upload image to Firebase Storage
+    async function uploadImage(image, imageName) {
+      if (!image) return ""; // If no image, return empty string
+
       try {
-        if (!imageData) return ""; // Return empty string if no image is provided
-
-        console.log("📤 Image upload started:", imageName);
-
-        let blob = imageData instanceof File ? imageData : await (await fetch(imageData)).blob();
         const storageRef = ref(storage, `orders/${user.uid}/${imageName}`);
-        const uploadTask = uploadBytesResumable(storageRef, blob);
-
-        return new Promise((resolve, reject) => {
-          uploadTask.on(
-            "state_changed",
-            (snapshot) => {
-              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              console.log(`⏳ Upload progress: ${progress.toFixed(2)}%`);
-            },
-            (error) => {
-              console.error("❌ Image upload failed:", error);
-              reject(""); // Return empty string if upload fails
-            },
-            async () => {
-              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-              console.log("✅ Image successfully uploaded:", downloadURL);
-              resolve(downloadURL);
-            }
-          );
-        });
-
+        await uploadBytes(storageRef, image);
+        return await getDownloadURL(storageRef);
       } catch (error) {
-        console.error("❌ Image upload error:", error.message);
-        return ""; // Return empty string on error
+        console.error("❌ Image upload failed:", error);
+        return ""; // Return empty string on failure
       }
     }
 
-    // ✅ First, upload images (Using Promise.all to wait for both uploads)
+    // ✅ Upload images and get URLs
     const [image1Url, image2Url] = await Promise.all([
-      uploadImageToStorage(orderDetails.image1, "design1.jpg"),
-      uploadImageToStorage(orderDetails.image2, "design2.jpg"),
+      uploadImage(orderDetails.image1, "design1.jpg"),
+      uploadImage(orderDetails.image2, "design2.jpg"),
     ]);
 
-    // ✅ Now, save order data to Firestore
+    // ✅ Prepare order data
     const orderData = {
       uid: user.uid,
+      name: orderDetails.name,
+      email: orderDetails.email,
+      mobile: orderDetails.mobile,
       address: orderDetails.address,
       city: orderDetails.city,
-      email: orderDetails.email,
-      fullName: orderDetails.fullName,
-      image1: image1Url,  // ✅ Direct image 1 URL
-      image2: image2Url,  // ✅ Direct image 2 URL
-      mobile: orderDetails.mobile,
-      name: orderDetails.name,
-      paymentId: orderDetails.paymentId,
-      paymentStatus: orderDetails.paymentStatus,
+      state: orderDetails.state,
       pincode: orderDetails.pincode,
       price: orderDetails.price,
-      state: orderDetails.state,
+      paymentId: orderDetails.paymentId,
+      paymentStatus: orderDetails.paymentStatus,
       type: orderDetails.type,
+      image1: image1Url,
+      image2: image2Url,
       createdAt: new Date().toISOString()
     };
 
     // ✅ Save order to Firestore
-    const docRef = await addDoc(collection(db, "orders"), orderData);
-    
-    console.log("✅ Order successfully saved in Firestore! Order ID:", docRef.id);
+    await addDoc(collection(db, "orders"), orderData);
+
+    console.log("✅ Order saved successfully!");
     alert("✅ Order placed successfully!");
     window.location.href = "/order-success.html";
 
   } catch (error) {
-    console.error("❌ Error saving order:", error.message);
+    console.error("❌ Error:", error.message);
     alert(`❌ Error: ${error.message}`);
   } finally {
     stopLoader();
   }
-}
-                             
+        }                            
 
 // ✅ Retrieve Payment Details
-
-
-
 function getPaymentDetails() {
 
 
