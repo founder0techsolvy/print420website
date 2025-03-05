@@ -340,38 +340,55 @@ console.log("✅ Loader Removed");
 }
 
  // ✅ Save Order to Firebase Firestore
-
 async function saveOrderToFirebase(order) {
 
-try {
+  try {
 
-const user = auth.currentUser;
+    const user = auth.currentUser;
 
-if (!user) throw new Error("User not authenticated");
-
-
-
-const orderWithUID = {
-
-  ...order,
-
-  uid: user.uid,
-
-  createdAt: new Date().toISOString()
-
-};
+    if (!user) throw new Error("User not authenticated");
 
 
 
-await addDoc(collection(db, "orders"), orderWithUID);
+    // ✅ Get Current Date & Time (Formatted)
 
-} catch (error) {
+    const now = new Date();
 
-throw new Error("Firestore save failed: " + error.message);
+    const formattedDateTime = now.toLocaleString("en-IN", { 
+
+      day: "2-digit", month: "2-digit", year: "numeric", 
+
+      hour: "2-digit", minute: "2-digit", second: "2-digit",
+
+      hour12: true 
+
+    });
+
+
+
+    const orderWithUID = {
+
+      ...order,
+
+      uid: user.uid,
+
+      createdAt: formattedDateTime // Save formatted date-time
+
+    };
+
+
+
+    await addDoc(collection(db, "orders"), orderWithUID);
+
+  } catch (error) {
+
+    throw new Error("Firestore save failed: " + error.message);
+
+  }
 
 }
 
-}
+  
 
 
 
