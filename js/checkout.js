@@ -656,8 +656,6 @@ console.log("✅ Loader Removed");
 
 
 
-
-    // ✅ इमेज अपलोड करने का फंक्शन (Firebase Storage)
 async function uploadImageToStorage(imageData, userId, imageName) {
   try {
     console.log("📤 इमेज अपलोड शुरू हो रहा है:", imageName);
@@ -675,36 +673,38 @@ async function uploadImageToStorage(imageData, userId, imageName) {
       throw new Error("❌ अमान्य इमेज फॉर्मेट");
     }
 
-    const storagePath = `orders/_${imageName}`;
+    const storagePath = `orders/${userId}/${imageName}`;  // ✅ अब इमेज User-wise स्टोर होगी
     const storageRef = ref(storage, storagePath);
     
     // इमेज अपलोड करें और प्रोग्रेस दिखाएं
     const uploadTask = uploadBytesResumable(storageRef, blob);
 
-    uploadTask.on("state_changed",
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log(`⏳ अपलोड प्रगति: ${progress.toFixed(2)}%`);
-      },
-      (error) => {
-        console.error("❌ इमेज अपलोड विफल:", error);
-        throw error;
-      }
-    );
-
-    await uploadTask;
-    
-    console.log("✅ इमेज सफलतापूर्वक अपलोड हुई:", imageName);
-    return await getDownloadURL(storageRef);  // ✅ Return सिर्फ Image URL
+    return new Promise((resolve, reject) => {
+      uploadTask.on("state_changed",
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`⏳ अपलोड प्रगति: ${progress.toFixed(2)}%`);
+        },
+        (error) => {
+          console.error("❌ इमेज अपलोड विफल:", error);
+          reject(error);
+        },
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          console.log("✅ इमेज सफलतापूर्वक अपलोड हुई:", downloadURL);
+          resolve(downloadURL);
+        }
+      );
+    });
 
   } catch (error) {
     console.error("❌ इमेज अपलोड त्रुटि:", error.message);
-    return null;  // अगर इमेज अपलोड फेल हो जाए, तो null वापस करें
+    return null;
   }
-}
+    }
+    
 
-// ✅ ऑर्डर सेव करने का फंक्शन (Firestore में सिर्फ इमेज URL Save होगा)
-async function saveOrderToFirebase(orderDetails) {
+   async function saveOrderToFirebase(orderDetails) {
   try {
     startLoader();
     
@@ -715,26 +715,26 @@ async function saveOrderToFirebase(orderDetails) {
 
     const imageUrls = {};
 
-    // इमेज 1 अपलोड करें
+    // ✅ इमेज 1 अपलोड करें (अगर उपलब्ध है)
     if (orderDetails.image1) {
       const url = await uploadImageToStorage(orderDetails.image1, user.uid, "design1");
       if (url) imageUrls.image1 = url;
     }
 
-    // इमेज 2 अपलोड करें
+    // ✅ इमेज 2 अपलोड करें (अगर उपलब्ध है)
     if (orderDetails.image2) {
       const url = await uploadImageToStorage(orderDetails.image2, user.uid, "design2");
       if (url) imageUrls.image2 = url;
     }
 
-    // Firestore में सिर्फ टेक्स्ट डेटा और इमेज URL सेव करें
+    // ✅ Firestore में सिर्फ टेक्स्ट डेटा और इमेज URL सेव करें
     const orderData = {
       uid: user.uid,
       address: orderDetails.address,
       city: orderDetails.city,
       email: orderDetails.email,
       fullName: orderDetails.fullName,
-      imageUrls,  // ✅ सिर्फ URL सेव होगा
+      imageUrls: imageUrls,  // ✅ सिर्फ URL सेव होगा
       mobile: orderDetails.mobile,
       name: orderDetails.name,
       paymentId: orderDetails.paymentId,
@@ -743,9 +743,10 @@ async function saveOrderToFirebase(orderDetails) {
       price: orderDetails.price,
       state: orderDetails.state,
       type: orderDetails.type,
-      ceatedAt: new Date().toISOString()
+      createdAt: new Date().toISOString()
     };
 
+    // ✅ Firestore में ऑर्डर सेव करें
     const docRef = await addDoc(collection(db, "orders"), orderData);
     
     console.log("✅ ऑर्डर सफलतापूर्वक Firestore में सेव किया गया! Order ID:", docRef.id);
@@ -757,7 +758,7 @@ async function saveOrderToFirebase(orderDetails) {
   } finally {
     stopLoader();
   }
-                                                  }
+      }                                               
                              
 
 // ✅ Retrieve Payment Details
