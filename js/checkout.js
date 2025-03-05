@@ -656,64 +656,93 @@ console.log("✅ Loader Removed");
 
 
 
-async function saveOrderToFirebase(order) {
+// ✅ इमेज अपलोड का मुख्य फंक्शन
+async function uploadImageToStorage(imageData, userId, imageName) {
   try {
-    showLoader();
-
-    const user = auth.currentUser;
-    if (!user) {
-      alert("❌ Error: User not authenticated.");
-      hideLoader();
-      return;
+    // 1. इमेज डेटा का प्रकार पहचानें
+    let blob;
+    
+    if (imageData instanceof File) {
+      // Case 1: File Object (जैसे input[type=file] से)
+      blob = imageData;
+    } else if (imageData.startsWith('data:image')) {
+      // Case 2: Base64 स्ट्रिंग
+      const response = await fetch(imageData);
+      blob = await response.blob();
+    } else if (imageData.startsWith('http')) {
+      // Case 3: External URL
+      const response = await fetch(imageData);
+      blob = await response.blob();
+    } else {
+      throw new Error("अमान्य इमेज फॉर्मेट");
     }
 
-    // 1. इमेज फाइल्स को प्राप्त करें (यहाँ मान लें image1 और image2 File objects हैं)
-    // यदि आपके पास Base64 URLs हैं, तो उन्हें Blob में कन्वर्ट करें
-    const imageFile1 = await urlToBlob(order.image1);
-    const imageFile2 = await urlToBlob(order.image2);
-
-    // 2. इमेज को Storage में अपलोड करें
-    const storageRef = ref(storage, `orders/${user.uid}/${Date.now()}`);
-    const image1Ref = ref(storage, `${storageRef.fullPath}/image1`);
-    const image2Ref = ref(storage, `${storageRef.fullPath}/image2`);
-
-    const uploadTask1 = await uploadBytes(image1Ref, imageFile1);
-    const uploadTask2 = await uploadBytes(image2Ref, imageFile2);
-
-    // 3. डाउनलोड URLs प्राप्त करें
-    const imageUrl1 = await getDownloadURL(uploadTask1.ref);
-    const imageUrl2 = await getDownloadURL(uploadTask2.ref);
-
-    // 4. Firestore में डेटा सेव करें
-    const now = new Date();
-    const formattedDateTime = now.toLocaleString("en-IN", { 
-      day: "2-digit", month: "2-digit", year: "numeric",
-      hour: "2-digit", minute: "2-digit", second: "2-digit",
-      hour12: true 
-    });
-
-    const orderData = {
-      ...order,
-      uid: user.uid,
-      createdAt: formattedDateTime,
-      imageUrl1: imageUrl1,
-      imageUrl2: imageUrl2
-    };
-
-    await addDoc(collection(db, "orders"), orderData);
-    hideLoader();
-    window.location.href = "order-success.html";
+    // 2. Firebase Storage में अपलोड करें
+    const storagePath = `users/${userId}/orders/${Date.now()}_${imageName}`;
+    const storageRef = ref(storage, storagePath);
+    await uploadBytes(storageRef, blob);
+    
+    // 3. डाउनलोड URL प्राप्त करें
+    return await getDownloadURL(storageRef);
 
   } catch (error) {
-    hideLoader();
-    alert("❌ Error Saving Order: " + error.message);
+    console.error("इमेज अपलोड में त्रुटि:", error);
+    throw error;
   }
 }
 
-// Base64 URL को Blob में बदलने के लिए हेल्पर फंक्शन
-async function urlToBlob(base64) {
-  const response = await fetch(base64);
-  return await response.blob();
+// ✅ ऑर्डर सेव करने का संपूर्ण फंक्शन
+async function saveOrderToFirebase(orderDetails) {
+  try {
+    startLoader();
+    
+    // 1. यूजर प्रमाणीकरण चेक करें
+    const user = auth.currentUser;
+    if (!user) throw new Error("यूजर लॉगिन नहीं है");
+
+    // 2. सभी इमेज्स को अपलोड करें
+    const imageUrls = {};
+    
+    // इमेज 1 अपलोड करें
+    if (orderDetails.image1) {
+      imageUrls.image1 = await uploadImageToStorage(
+        orderDetails.image1, 
+        user.uid, 
+        "design1"
+      );
+    }
+
+    // इमेज 2 अपलोड करें
+    if (orderDetails.image2) {
+      imageUrls.image2 = await uploadImageToStorage(
+        orderDetails.image2, 
+        user.uid, 
+        "design2"
+      );
+    }
+
+    // 3. Firestore में डेटा सेव करें
+    const orderData = {
+      ...orderDetails,
+      ...imageUrls,
+      uid: user.uid,
+      timestamp: new Date().toISOString()
+    };
+
+    // मूल इमेज डेटा हटाएं (साइज कम करने के लिए)
+    delete orderData.image1;
+    delete orderData.image2;
+
+    await addDoc(collection(db, "orders"), orderData);
+    
+    // 4. सफलता पेज पर रीडायरेक्ट
+    window.location.href = "/order-success.html";
+
+  } catch (error) {
+    alert(`त्रुटि: ${error.message}`);
+  } finally {
+    stopLoader();
+  }
 }
                              
 
