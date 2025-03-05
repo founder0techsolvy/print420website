@@ -656,94 +656,100 @@ console.log("✅ Loader Removed");
 
 
 
-// ✅ इमेज अपलोड का मुख्य फंक्शन
+
+    // ✅ इमेज अपलोड करने का फंक्शन (Firebase Storage)
 async function uploadImageToStorage(imageData, userId, imageName) {
   try {
-    // 1. इमेज डेटा का प्रकार पहचानें
+    console.log("📤 इमेज अपलोड शुरू हो रहा है:", imageName);
     let blob;
-    
+
     if (imageData instanceof File) {
-      // Case 1: File Object (जैसे input[type=file] से)
       blob = imageData;
     } else if (imageData.startsWith('data:image')) {
-      // Case 2: Base64 स्ट्रिंग
       const response = await fetch(imageData);
       blob = await response.blob();
     } else if (imageData.startsWith('http')) {
-      // Case 3: External URL
       const response = await fetch(imageData);
       blob = await response.blob();
     } else {
-      throw new Error("अमान्य इमेज फॉर्मेट");
+      throw new Error("❌ अमान्य इमेज फॉर्मेट");
     }
 
-    // 2. Firebase Storage में अपलोड करें
     const storagePath = `users/${userId}/orders/${Date.now()}_${imageName}`;
     const storageRef = ref(storage, storagePath);
-    await uploadBytes(storageRef, blob);
     
-    // 3. डाउनलोड URL प्राप्त करें
-    return await getDownloadURL(storageRef);
+    // इमेज अपलोड करें और प्रोग्रेस दिखाएं
+    const uploadTask = uploadBytesResumable(storageRef, blob);
+
+    uploadTask.on("state_changed",
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log(`⏳ अपलोड प्रगति: ${progress.toFixed(2)}%`);
+      },
+      (error) => {
+        console.error("❌ इमेज अपलोड विफल:", error);
+        throw error;
+      }
+    );
+
+    await uploadTask;
+    
+    console.log("✅ इमेज सफलतापूर्वक अपलोड हुई:", imageName);
+    return await getDownloadURL(storageRef);  // ✅ Return सिर्फ Image URL
 
   } catch (error) {
-    console.error("इमेज अपलोड में त्रुटि:", error);
-    throw error;
+    console.error("❌ इमेज अपलोड त्रुटि:", error.message);
+    return null;  // अगर इमेज अपलोड फेल हो जाए, तो null वापस करें
   }
 }
 
-// ✅ ऑर्डर सेव करने का संपूर्ण फंक्शन
+// ✅ ऑर्डर सेव करने का फंक्शन (Firestore में सिर्फ इमेज URL Save होगा)
 async function saveOrderToFirebase(orderDetails) {
   try {
     startLoader();
     
-    // 1. यूजर प्रमाणीकरण चेक करें
     const user = auth.currentUser;
-    if (!user) throw new Error("यूजर लॉगिन नहीं है");
+    if (!user) throw new Error("❌ कृपया पहले लॉगिन करें");
 
-    // 2. सभी इमेज्स को अपलोड करें
+    console.log("📝 ऑर्डर सेव करने की प्रक्रिया शुरू...");
+
     const imageUrls = {};
-    
+
     // इमेज 1 अपलोड करें
     if (orderDetails.image1) {
-      imageUrls.image1 = await uploadImageToStorage(
-        orderDetails.image1, 
-        user.uid, 
-        "design1"
-      );
+      const url = await uploadImageToStorage(orderDetails.image1, user.uid, "design1");
+      if (url) imageUrls.image1 = url;
     }
 
     // इमेज 2 अपलोड करें
     if (orderDetails.image2) {
-      imageUrls.image2 = await uploadImageToStorage(
-        orderDetails.image2, 
-        user.uid, 
-        "design2"
-      );
+      const url = await uploadImageToStorage(orderDetails.image2, user.uid, "design2");
+      if (url) imageUrls.image2 = url;
     }
 
-    // 3. Firestore में डेटा सेव करें
+    // Firestore में सिर्फ टेक्स्ट डेटा और इमेज URL सेव करें
     const orderData = {
-      ...orderDetails,
-      ...imageUrls,
       uid: user.uid,
+      productName: orderDetails.productName,
+      size: orderDetails.size,
+      color: orderDetails.paymentId,
+      price: orderDetails.price,
+      imageUrls,  // ✅ सिर्फ URL सेव होगा
       timestamp: new Date().toISOString()
     };
 
-    // मूल इमेज डेटा हटाएं (साइज कम करने के लिए)
-    delete orderData.image1;
-    delete orderData.image2;
-
-    await addDoc(collection(db, "orders"), orderData);
+    const docRef = await addDoc(collection(db, "orders"), orderData);
     
-    // 4. सफलता पेज पर रीडायरेक्ट
+    console.log("✅ ऑर्डर सफलतापूर्वक Firestore में सेव किया गया! Order ID:", docRef.id);
     window.location.href = "/order-success.html";
 
   } catch (error) {
+    console.error("❌ ऑर्डर सेव करने में त्रुटि:", error.message);
     alert(`त्रुटि: ${error.message}`);
   } finally {
     stopLoader();
   }
-}
+                                                  }
                              
 
 // ✅ Retrieve Payment Details
