@@ -683,7 +683,6 @@ async function saveOrderToFirebase(orderDetails) {
       price: orderDetails.price,
       state: orderDetails.state,
       type: orderDetails.type,
-      createdAt: serverTimestamp()
     };
     
     const docRef = await addDoc(collection(db, "orders"), orderData);
