@@ -660,21 +660,63 @@ console.log("✅ Loader Removed");
 async function saveOrderToFirebase(orderDetails) {
   try {
     startLoader();
-    
+
     const user = auth.currentUser;
-    if (!user) throw new Error("❌ कृपया पहले लॉगिन करें");
-    
-    console.log("📝 ऑर्डर सेव करने की प्रक्रिया शुरू...");
-    
-    // ✅ पहले Firestore में एक खाली ऑर्डर एंट्री बनाओ (ताकि हमें ऑर्डर ID मिले)
+    if (!user) throw new Error("❌ Please log in first");
+
+    console.log("📝 Order saving process started...");
+
+    // ✅ Function to upload images
+    async function uploadImageToStorage(imageData, imageName) {
+      try {
+        if (!imageData) return ""; // Return empty string if no image is provided
+
+        console.log("📤 Image upload started:", imageName);
+
+        let blob = imageData instanceof File ? imageData : await (await fetch(imageData)).blob();
+        const storageRef = ref(storage, `orders/${user.uid}/${imageName}`);
+        const uploadTask = uploadBytesResumable(storageRef, blob);
+
+        return new Promise((resolve, reject) => {
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log(`⏳ Upload progress: ${progress.toFixed(2)}%`);
+            },
+            (error) => {
+              console.error("❌ Image upload failed:", error);
+              reject(""); // Return empty string if upload fails
+            },
+            async () => {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              console.log("✅ Image successfully uploaded:", downloadURL);
+              resolve(downloadURL);
+            }
+          );
+        });
+
+      } catch (error) {
+        console.error("❌ Image upload error:", error.message);
+        return ""; // Return empty string on error
+      }
+    }
+
+    // ✅ First, upload images (Using Promise.all to wait for both uploads)
+    const [image1Url, image2Url] = await Promise.all([
+      uploadImageToStorage(orderDetails.image1, "design1.jpg"),
+      uploadImageToStorage(orderDetails.image2, "design2.jpg"),
+    ]);
+
+    // ✅ Now, save order data to Firestore
     const orderData = {
       uid: user.uid,
       address: orderDetails.address,
       city: orderDetails.city,
       email: orderDetails.email,
       fullName: orderDetails.fullName,
-      image1: "", // अभी इमेज लिंक खाली रहेगा
-      image2: "",
+      image1: image1Url,  // ✅ Direct image 1 URL
+      image2: image2Url,  // ✅ Direct image 2 URL
       mobile: orderDetails.mobile,
       name: orderDetails.name,
       paymentId: orderDetails.paymentId,
@@ -683,79 +725,21 @@ async function saveOrderToFirebase(orderDetails) {
       price: orderDetails.price,
       state: orderDetails.state,
       type: orderDetails.type,
+      createdAt: new Date().toISOString()
     };
-    
+
+    // ✅ Save order to Firestore
     const docRef = await addDoc(collection(db, "orders"), orderData);
-    const orderId = docRef.id; // ✅ अब हमारे पास ऑर्डर ID है
     
-    console.log("📦 ऑर्डर ID मिली:", orderId);
-    
-    let image1Url = "";
-    let image2Url = "";
-    
-    // ✅ अब उसी ऑर्डर ID के फोल्डर में इमेज सेव करेंगे
-    if (orderDetails.image1) {
-      image1Url = await uploadImageToStorage(orderDetails.image1, user.uid, orderId, "design1.jpg");
-    }
-    if (orderDetails.image2) {
-      image2Url = await uploadImageToStorage(orderDetails.image2, user.uid, orderId, "design2.jpg");
-    }
-    
-    // ✅ अब Firestore में इमेज URL अपडेट करें
-    await updateDoc(docRef, { image1: image1Url, image2: image2Url });
-    
-    console.log("✅ ऑर्डर Firestore में सफलतापूर्वक अपडेट हुआ!");
-    alert("✅ ऑर्डर सफलतापूर्वक बुक किया गया!");
+    console.log("✅ Order successfully saved in Firestore! Order ID:", docRef.id);
+    alert("✅ Order placed successfully!");
     window.location.href = "/order-success.html";
-    
+
   } catch (error) {
-    console.error("❌ ऑर्डर सेव करने में त्रुटि:", error.message);
-    alert(`❌ त्रुटि: ${error.message}`);
+    console.error("❌ Error saving order:", error.message);
+    alert(`❌ Error: ${error.message}`);
   } finally {
     stopLoader();
-  }
-}
-
-async function uploadImageToStorage(imageData, userId, orderId, fileName) {
-  try {
-    console.log("📤 इमेज अपलोड शुरू हो रहा है:", fileName);
-
-    let blob;
-    if (imageData instanceof File) {
-      blob = imageData;
-    } else if (typeof imageData === "string" && imageData.startsWith("data:image")) {
-      const response = await fetch(imageData);
-      blob = await response.blob();
-    } else {
-      throw new Error("❌ अमान्य इमेज फॉर्मेट");
-    }
-
-    const storagePath = `orders/${userId}/${orderId}/${fileName}`; // ✅ ऑर्डर ID के अंदर इमेज सेव होगी
-    const storageRef = ref(storage, storagePath);
-    const uploadTask = uploadBytesResumable(storageRef, blob);
-
-    return new Promise((resolve, reject) => {
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`⏳ अपलोड प्रगति: ${progress.toFixed(2)}%`);
-        },
-        (error) => {
-          console.error("❌ इमेज अपलोड विफल:", error);
-          reject(null);
-        },
-        async () => {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          console.log("✅ इमेज सफलतापूर्वक अपलोड हुई:", downloadURL);
-          resolve(downloadURL);
-        }
-      );
-    });
-
-  } catch (error) {
-    console.error("❌ इमेज अपलोड त्रुटि:", error.message);
-    return null;
   }
 }
                              
