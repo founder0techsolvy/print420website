@@ -340,7 +340,7 @@ console.log("✅ Loader Removed");
 }
 
  // ✅ Save Order to Firebase Firestore
-async function saveOrderToFirebase(order) {
+    async function saveOrderToFirebase(order, paymentDetails) {
 
   try {
 
@@ -378,40 +378,56 @@ async function saveOrderToFirebase(order) {
 
 
 
+    // ✅ Save Order to Firestore
+
     await addDoc(collection(db, "orders"), orderWithUID);
+
+
+
+    // ✅ Save Payment Details to sessionStorage for Success Page
+
+    sessionStorage.setItem("paymentDetails", JSON.stringify(paymentDetails));
+
+
+
+    // ✅ Redirect to Success Page
+
+    window.location.href = "order-success.html";
 
   } catch (error) {
 
-    throw new Error("Firestore save failed: " + error.message);
+    hideLoader(); // ✅ Hide spinner if error occurs
+
+    alert("❌ Error Saving Order: " + error.message);
 
   }
 
 }
 
-  
 
 
-
-// ✅ Retrieve Payment Details
+// ✅ Retrieve Payment Details (For Order Success Page)
 
 function getPaymentDetails() {
 
-const paymentData = JSON.parse(sessionStorage.getItem("paymentDetails"));
+  const paymentData = JSON.parse(sessionStorage.getItem("paymentDetails"));
 
-if (paymentData) {
+  
 
-console.log("✅ Payment Data Retrieved:", paymentData);
+  if (paymentData) {
 
-return paymentData;
+    console.log("✅ Payment Data Retrieved:", paymentData);
 
-} else {
+    return paymentData;
 
-console.log("❌ No Payment Data Found.");
+  } else {
 
-return null;
+    console.log("❌ No Payment Data Found.");
 
-}
+    return null;
 
-}
+  }
+
+    }
 
                    
