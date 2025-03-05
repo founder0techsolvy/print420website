@@ -656,54 +656,65 @@ console.log("✅ Loader Removed");
 
 
 
-// ✅ Save Order with Image to Firebase Firestore
 async function saveOrderToFirebase(order) {
-try {
-showLoader(); // ✅ Show Loader
+  try {
+    showLoader();
 
-// ✅ Get Current User UID
-const user = auth.currentUser;
-if (!user) {
-alert("❌ Error: User not authenticated.");
-hideLoader();
-return;
+    const user = auth.currentUser;
+    if (!user) {
+      alert("❌ Error: User not authenticated.");
+      hideLoader();
+      return;
+    }
+
+    // 1. इमेज फाइल्स को प्राप्त करें (यहाँ मान लें image1 और image2 File objects हैं)
+    // यदि आपके पास Base64 URLs हैं, तो उन्हें Blob में कन्वर्ट करें
+    const imageFile1 = await urlToBlob(order.image1);
+    const imageFile2 = await urlToBlob(order.image2);
+
+    // 2. इमेज को Storage में अपलोड करें
+    const storageRef = ref(storage, `orders/${user.uid}/${Date.now()}`);
+    const image1Ref = ref(storage, `${storageRef.fullPath}/image1`);
+    const image2Ref = ref(storage, `${storageRef.fullPath}/image2`);
+
+    const uploadTask1 = await uploadBytes(image1Ref, imageFile1);
+    const uploadTask2 = await uploadBytes(image2Ref, imageFile2);
+
+    // 3. डाउनलोड URLs प्राप्त करें
+    const imageUrl1 = await getDownloadURL(uploadTask1.ref);
+    const imageUrl2 = await getDownloadURL(uploadTask2.ref);
+
+    // 4. Firestore में डेटा सेव करें
+    const now = new Date();
+    const formattedDateTime = now.toLocaleString("en-IN", { 
+      day: "2-digit", month: "2-digit", year: "numeric",
+      hour: "2-digit", minute: "2-digit", second: "2-digit",
+      hour12: true 
+    });
+
+    const orderData = {
+      ...order,
+      uid: user.uid,
+      createdAt: formattedDateTime,
+      imageUrl1: imageUrl1,
+      imageUrl2: imageUrl2
+    };
+
+    await addDoc(collection(db, "orders"), orderData);
+    hideLoader();
+    window.location.href = "order-success.html";
+
+  } catch (error) {
+    hideLoader();
+    alert("❌ Error Saving Order: " + error.message);
+  }
 }
 
-// ✅ Get Current Date & Time (Formatted)
-const now = new Date();
-const formattedDateTime = now.toLocaleString("en-IN", {
-day: "2-digit", month: "2-digit", year: "numeric",
-hour: "2-digit", minute: "2-digit", second: "2-digit",
-hour12: true
-});
-
-// ✅ Extract Image URLs from orderDetails
-const imageUrl1 = order.image1;
-const imageUrl2 = order.image2;
-
-// ✅ Prepare Order Data (without image data)
-const orderWithDateTime = {
-...order,
-uid: user.uid, // ✅ Store User UID
-createdAt: formattedDateTime, // ✅ Store Readable Date & Time
-imageUrl1: imageUrl1, // ✅ Store Image URL 1
-imageUrl2: imageUrl2 // ✅ Store Image URL 2
-};
-
-// ✅ Save Order to Firestore
-await addDoc(collection(db, "orders"), orderWithDateTime);
-
-hideLoader(); // ✅ Hide Loader
-window.location.href = "order-success.html";
-
-} catch (error) {
-hideLoader(); // ✅ Hide Loader on Error
-alert("❌ Error Saving Order: " + error.message);
+// Base64 URL को Blob में बदलने के लिए हेल्पर फंक्शन
+async function urlToBlob(base64) {
+  const response = await fetch(base64);
+  return await response.blob();
 }
-}
-
-// ... (rest of your code) ...
-// .
                              
 
 // ✅ Retrieve Payment Details
