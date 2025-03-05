@@ -339,27 +339,42 @@ console.log("✅ Loader Removed");
 
 }
 
-import { collection, addDoc, Timestamp } from "firebase/firestore"; 
+ // ✅ Save Order to Firebase Firestore
 
-// ✅ Save Order to Firebase Firestore
 async function saveOrderToFirebase(order) {
-  try {
-    const user = auth.currentUser;
-    if (!user) throw new Error("User not authenticated");
 
-    const orderWithUID = {
-      ...order,
-      uid: user.uid,
-      timestamp: Timestamp.now() // Firestore Timestamp format
-    };
+try {
 
-    await addDoc(collection(db, "orders"), orderWithUID);
-    console.log("Order saved successfully!");
-  } catch (error) {
-    console.error("Firestore save failed:", error.message);
-    throw new Error("Firestore save failed: " + error.message);
-  }
+const user = auth.currentUser;
+
+if (!user) throw new Error("User not authenticated");
+
+
+
+const orderWithUID = {
+
+  ...order,
+
+  uid: user.uid,
+
+  createdAt: new Date().toISOString()
+
+};
+
+
+
+await addDoc(collection(db, "orders"), orderWithUID);
+
+} catch (error) {
+
+throw new Error("Firestore save failed: " + error.message);
+
 }
+
+}
+
+
+
 // ✅ Retrieve Payment Details
 
 function getPaymentDetails() {
