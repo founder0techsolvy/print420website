@@ -657,56 +657,53 @@ console.log("✅ Loader Removed");
 
 
 // ✅ Save Order with Image to Firebase Firestore
-// ✅ Save Order with Image to Firebase Firestore
-async function saveOrderToFirebase(order, imageFile) {
-  try {
-    showLoader(); // ✅ Show Loader
+async function saveOrderToFirebase(order) {
+try {
+showLoader(); // ✅ Show Loader
 
-    // ✅ Get Current User UID
-    const user = auth.currentUser;
-    if (!user) {
-      alert("❌ Error: User not authenticated.");
-      hideLoader();
-      return;
-    }
-
-    // ✅ Get Current Date & Time (Formatted)
-    const now = new Date();
-    const formattedDateTime = now.toLocaleString("en-IN", { 
-      day: "2-digit", month: "2-digit", year: "numeric", 
-      hour: "2-digit", minute: "2-digit", second: "2-digit",
-      hour12: true 
-    });
-
-    // ✅ Upload Image to Firebase Storage (if available)
-    let imageUrl = null;
-    if (imageFile) {
-      const storageRef = ref(storage, `orders/${user.uid}/${Date.now()}-${imageFile.name}`);
-      const snapshot = await uploadBytes(storageRef, imageFile);
-      imageUrl = await getDownloadURL(snapshot.ref);
-    }
-
-    // ✅ Prepare Order Data
-    const orderWithDateTime = {
-      ...order,
-      uid: user.uid,   // ✅ Store User UID
-      createdAt: formattedDateTime, // ✅ Store Readable Date & Time
-      imageUrl: imageUrl // ✅ Store Image URL (if uploaded)
-    };
-
-    // ✅ Save Order to Firestore
-    await addDoc(collection(db, "orders"), orderWithDateTime);
-
-    hideLoader(); // ✅ Hide Loader
-    window.location.href = "order-success.html";
-
-  } catch (error) {
-    hideLoader(); // ✅ Hide Loader on Error
-    alert("❌ Error Saving Order: " + error.message);
-  }
+// ✅ Get Current User UID
+const user = auth.currentUser;
+if (!user) {
+alert("❌ Error: User not authenticated.");
+hideLoader();
+return;
 }
 
-// ... (बाकी कोड वही रहेगा)
+// ✅ Get Current Date & Time (Formatted)
+const now = new Date();
+const formattedDateTime = now.toLocaleString("en-IN", {
+day: "2-digit", month: "2-digit", year: "numeric",
+hour: "2-digit", minute: "2-digit", second: "2-digit",
+hour12: true
+});
+
+// ✅ Extract Image URLs from orderDetails
+const imageUrl1 = order.image1;
+const imageUrl2 = order.image2;
+
+// ✅ Prepare Order Data (without image data)
+const orderWithDateTime = {
+...order,
+uid: user.uid, // ✅ Store User UID
+createdAt: formattedDateTime, // ✅ Store Readable Date & Time
+imageUrl1: imageUrl1, // ✅ Store Image URL 1
+imageUrl2: imageUrl2 // ✅ Store Image URL 2
+};
+
+// ✅ Save Order to Firestore
+await addDoc(collection(db, "orders"), orderWithDateTime);
+
+hideLoader(); // ✅ Hide Loader
+window.location.href = "order-success.html";
+
+} catch (error) {
+hideLoader(); // ✅ Hide Loader on Error
+alert("❌ Error Saving Order: " + error.message);
+}
+}
+
+// ... (rest of your code) ...
+// .
                              
 
 // ✅ Retrieve Payment Details
