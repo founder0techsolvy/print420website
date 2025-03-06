@@ -246,10 +246,14 @@ document.getElementById("placeOrderBtn").addEventListener("click", async functio
     image2: image2Url || "No second image",
     email: user.email,
     uid: user.uid,
-    paymentId: response.razorpay_payment_id,
     timestamp: new Date().toISOString()
   },
-  { paymentId: response.razorpay_payment_id, amount: amount / 100, currency: "INR" } // ✅ Payment details pass karo
+  { 
+    paymentId: response.razorpay_payment_id,  // ✅ Payment ID pass karna zaroori hai
+    amount: amount / 100, 
+    currency: "INR",
+    status: "Paid"  // ✅ Payment ka status bhi save karo
+  }
 );
           
           window.location.href = "order-success.html";
@@ -343,68 +347,39 @@ console.log("✅ Loader Removed");
 }
 
  // ✅ Save Order to Firebase Firestore
-    async function saveOrderToFirebase(order, paymentDetails) {
-
+async function saveOrderToFirebase(order, paymentDetails) {
   try {
-
     const user = auth.currentUser;
-
     if (!user) throw new Error("User not authenticated");
 
-
-
     // ✅ Get Current Date & Time (Formatted)
-
     const now = new Date();
-
     const formattedDateTime = now.toLocaleString("en-IN", { 
-
       day: "2-digit", month: "2-digit", year: "numeric", 
-
       hour: "2-digit", minute: "2-digit", second: "2-digit",
-
       hour12: true 
-
     });
 
-
-
-    const orderWithUID = {
-
+    // ✅ Merge Payment Details with Order
+    const orderWithPayment = {
       ...order,
-
-      uid: user.uid,
-
-      createdAt: formattedDateTime // Save formatted date-time
-
+      ...paymentDetails,  // ✅ Payment details ko merge karna important hai
+      createdAt: formattedDateTime 
     };
 
-
-
     // ✅ Save Order to Firestore
-
-    await addDoc(collection(db, "orders"), orderWithUID);
-
-
+    await addDoc(collection(db, "orders"), orderWithPayment);
 
     // ✅ Save Payment Details to sessionStorage for Success Page
-
+    console.log("Saving Payment Details:", paymentDetails); // Debug ke liye
     sessionStorage.setItem("paymentDetails", JSON.stringify(paymentDetails));
 
-
-
     // ✅ Redirect to Success Page
-
     window.location.href = "order-success.html";
-
   } catch (error) {
-
-    hideLoader(); // ✅ Hide spinner if error occurs
-
+    hideLoader();
     alert("❌ Error Saving Order: " + error.message);
-
   }
-
 }
 
 
