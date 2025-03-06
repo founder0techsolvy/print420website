@@ -250,6 +250,19 @@ await saveOrderToFirebase({
   paymentStatus: "Paid",  // ✅ Payment Status Added
   timestamp: new Date().toISOString()
 });
+
+// ✅ Save Order Details in sessionStorage for order-success.html
+sessionStorage.setItem("paymentDetails", JSON.stringify({
+  orderDetails: {
+    name: orderDetails.name,
+    price: orderDetails.price
+  },
+  paymentId: response.razorpay_payment_id,
+  paymentStatus: "Paid"
+}));
+
+// ✅ Redirect to Order Success Page
+window.location.href = "order-success.html";
           
           window.location.href = "order-success.html";
         } catch (error) {
