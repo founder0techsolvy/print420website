@@ -493,7 +493,7 @@ document.getElementById("placeOrderBtn").addEventListener("click", async functio
             uid: user.uid,
 
             paymentId: response.razorpay_payment_id,
-            paymentStatus: "Paid", //status of payment 
+          
             timestamp: new Date().toISOString()
 
           });
@@ -746,8 +746,7 @@ async function saveOrderToFirebase(order) {
 
 
 
-      createdAt: formattedDateTime, // Save formatted date-time
-      paymentStatus: "Paid"
+      createdAt: formattedDateTime, // Save formatted date-tim
 
 
 
