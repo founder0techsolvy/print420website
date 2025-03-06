@@ -239,15 +239,17 @@ document.getElementById("placeOrderBtn").addEventListener("click", async functio
           ]);
           
           // Save order with image URLs
-          await saveOrderToFirebase({
-            ...orderDetails,
-            image1: image1Url,
-            image2: image2Url || "No second image",
-            email: user.email,
-            uid: user.uid,
-            paymentId: response.razorpay_payment_id,
-            timestamp: new Date().toISOString()
-          });
+          // Save order with paymentStatus
+await saveOrderToFirebase({
+  ...orderDetails,
+  image1: image1Url,
+  image2: image2Url || "No second image",
+  email: user.email,
+  uid: user.uid,
+  paymentId: response.razorpay_payment_id,
+  paymentStatus: "Paid",  // ✅ Payment Status Added
+  timestamp: new Date().toISOString()
+});
           
           window.location.href = "order-success.html";
         } catch (error) {
