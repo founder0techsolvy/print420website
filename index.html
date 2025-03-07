@@ -513,7 +513,30 @@
     <!-- Bottom Section -->
     <div class="footer-bottom">
         <p>&copy; 2025 Print 420. All Rights Reserved.</p>
-      By placing an order, you agree to our <a href="terms.html">Terms & Conditions</a>.
+      <p>
+  By placing an order, you agree to our  
+  <a href="terms.html" id="fix-link">Terms & Conditions</a>.
+</p>
+
+<style>
+  /* Force the link to be clickable */
+  #fix-link {
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 9999 !important;
+    display: inline-block !important;
+    color: blue !important;
+    text-decoration: underline !important;
+  }
+</style>
+
+<script>
+  // Ensure clicking always works
+  document.getElementById("fix-link").addEventListener("click", function (event) {
+    event.stopPropagation(); // Stop interference from other scripts
+    console.log("Clicked: ", this.href);
+  });
+</script>
     </div>
 </footer>
 
