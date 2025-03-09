@@ -515,26 +515,32 @@
         <p>&copy; 2025 Print 420. All Rights Reserved.</p>
       <p>
   By placing an order, you agree to our  
-  <a href="terms.html" id="fix-link">Terms & Conditions</a>.
+  <a href="terms.html" class="policy-link">Terms & Conditions</a>,  
+  <a href="privacy-policy.html" class="policy-link">Privacy Policy</a>,  
+  <a href="refund-policy.html" class="policy-link">Refund & Return Policy</a>, and  
+  <a href="shipping-policy.html" class="policy-link">Shipping Policy</a>.
 </p>
 
 <style>
-  /* Force the link to be clickable */
-  #fix-link {
+  /* Force the links to be clickable */
+  .policy-link {
     pointer-events: auto !important;
     position: relative !important;
     z-index: 9999 !important;
     display: inline-block !important;
     color: blue !important;
     text-decoration: underline !important;
+    cursor: pointer !important;
   }
 </style>
 
 <script>
   // Ensure clicking always works
-  document.getElementById("fix-link").addEventListener("click", function (event) {
-    event.stopPropagation(); // Stop interference from other scripts
-    console.log("Clicked: ", this.href);
+  document.querySelectorAll(".policy-link").forEach(link => {
+    link.addEventListener("click", function (event) {
+      event.stopPropagation(); // Stop interference from other scripts
+      console.log("Clicked: ", this.href);
+    });
   });
 </script>
     </div>
