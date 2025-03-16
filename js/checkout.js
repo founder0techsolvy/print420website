@@ -288,7 +288,8 @@ window.location.href = "order-success.html";
   }
 });
 
- // ✅ Show Funny Loader with Center Emoji & Spinning Ring
+ 
+// ✅ Show Funny Loader with Emoji & Spinning Ring
 function showLoader() {
     if (!document.getElementById("customLoader")) {
         const loader = document.createElement("div");
@@ -308,15 +309,21 @@ function showLoader() {
         loader.style.fontWeight = "bold";
         loader.style.zIndex = "9999";
         loader.style.textAlign = "center";
+        loader.style.animation = "pulseBG 3s infinite alternate";
 
         loader.innerHTML = `
             <div class="spinner-container">
                 <div class="spinner"></div>
                 <span class="emoji">😂</span>
             </div>
-            <p id="loaderMessage" style="margin-top: 15px;">Kitne maasoom hokar order submit hone ka intezar kar rahe ho... 😂</p>
-            
+            <p id="loaderMessage" style="margin-top: 15px;">Order confirm hone wala hai, bas ruk jao! 😂</p>
+
             <style>
+                @keyframes pulseBG {
+                    0% { background: rgba(255, 255, 255, 0.95); }
+                    100% { background: rgba(255, 230, 230, 0.95); }
+                }
+
                 .spinner-container {
                     position: relative;
                     width: 80px;
@@ -330,6 +337,7 @@ function showLoader() {
                     font-size: 40px;
                     position: absolute;
                     z-index: 2;
+                    animation: bounce 1s infinite alternate;
                 }
 
                 .spinner {
@@ -340,7 +348,7 @@ function showLoader() {
                     border-bottom: 5px solid #FF0000;
                     border-radius: 50%;
                     position: absolute;
-                    animation: spin 1s linear infinite;
+                    animation: spin 1s linear infinite, changeSpeed 3s infinite alternate;
                     z-index: 1;
                 }
 
@@ -348,37 +356,54 @@ function showLoader() {
                     from { transform: rotate(0deg); }
                     to { transform: rotate(360deg); }
                 }
+
+                @keyframes changeSpeed {
+                    0% { animation-duration: 1s; }
+                    100% { animation-duration: 0.5s; }
+                }
+
+                @keyframes bounce {
+                    0% { transform: translateY(0); }
+                    100% { transform: translateY(-10px); }
+                }
             </style>
         `;
 
         document.body.appendChild(loader);
         console.log("✅ Funny Emoji Spinner Loader Added");
+
+        // ✅ Play funny sound
+        let audio = new Audio("https://www.myinstants.com/media/sounds/tacobell.mp3"); // Change to funny sound
+        audio.play().catch(err => console.warn("Sound play error:", err));
+
+        // ✅ Funny Dynamic Messages List
+        let messages = [
+            "Kitne maasoom hokar order submit hone ka intezar kar rahe ho... 😂",
+            "Bas thoda sa patience, order bhi keh raha hai 'Mujhe bhi confirm hone do bhai!' 🤭",
+            "Server abhi soch raha hai: ‘Yeh banda sahi hai, roz kuch naya order daal raha hai!’ 😆",
+            "Bhai, ruk jaa... Data udne wala hai NASA se bhi tez! 🚀",
+            "Tum jitna wait kar rahe ho, server utna hi confused hai! 🫠",
+            "Order soch raha hai ‘Kya mai sach mein hone wala hoon?!’ 😳",
+            "Ruko zara, sabar karo... Yeh coding hai, magic nahi! 🧙‍♂️✨",
+            "Bas ab final confirmation ho raha hai, tab tak chai pee lo! ☕",
+            "Tum aur wait kar sakte ho, par server ke emotions nahi! 😂",
+            "Order confirm ho gaya toh treat dena bhai! 🍕"
+        ];
+
+        let emojis = ["😂", "🤣", "🤭", "😆", "🤪", "🫠", "😳", "🤯", "🧙‍♂️", "🍕"];
+
+        // ✅ Change messages & emoji dynamically every 3 seconds
+        let i = 0;
+        let messageInterval = setInterval(() => {
+            if (document.getElementById("loaderMessage")) {
+                document.getElementById("loaderMessage").textContent = messages[i];
+                document.querySelector(".emoji").textContent = emojis[i]; // Change emoji
+                i = (i + 1) % messages.length;
+            } else {
+                clearInterval(messageInterval);
+            }
+        }, 3000);
     }
-
-    // ✅ Funny Dynamic Messages List
-    let messages = [
-        "Kitne maasoom hokar order submit hone ka intezar kar rahe ho... 😂",
-        "Bas thoda sa patience, order bhi keh raha hai 'Mujhe bhi confirm hone do bhai!' 🤭",
-        "Server abhi soch raha hai: ‘Yeh banda sahi hai, roz kuch naya order daal raha hai!’ 😆",
-        "Bhai, ruk jaa... Data udne wala hai NASA se bhi tez! 🚀",
-        "Tum jitna wait kar rahe ho, server utna hi confused hai! 🫠",
-        "Order soch raha hai ‘Kya mai sach mein hone wala hoon?!’ 😳",
-        "Ruko zara, sabar karo... Yeh coding hai, magic nahi! 🧙‍♂️✨",
-        "Bas ab final confirmation ho raha hai, tab tak chai pee lo! ☕",
-        "Tum aur wait kar sakte ho, par server ke emotions nahi! 😂",
-        "Order confirm ho gaya toh treat dena bhai! 🍕"
-    ];
-
-    // ✅ Change messages dynamically every 3 seconds
-    let i = 0;
-    let messageInterval = setInterval(() => {
-        if (document.getElementById("loaderMessage")) {
-            document.getElementById("loaderMessage").textContent = messages[i];
-            i = (i + 1) % messages.length;
-        } else {
-            clearInterval(messageInterval);
-        }
-    }, 3000);
 }
 
 // ✅ Hide Loader Function
