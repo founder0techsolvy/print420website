@@ -288,7 +288,7 @@ window.location.href = "order-success.html";
   }
 });
 
-// ✅ Show Funny Loader with Red Theme & Percentage Animation
+// ✅ Show Funny Loader with Animation
 function showLoader() {
     if (!document.getElementById("customLoader")) {
         const loader = document.createElement("div");
@@ -298,7 +298,7 @@ function showLoader() {
         loader.style.left = "0";
         loader.style.width = "100vw";
         loader.style.height = "100vh";
-        loader.style.background = "rgba(0, 0, 0, 0.9)";
+        loader.style.background = "rgba(255, 255, 255, 0.95)";
         loader.style.display = "flex";
         loader.style.flexDirection = "column";
         loader.style.alignItems = "center";
@@ -307,55 +307,42 @@ function showLoader() {
         loader.style.fontSize = "20px";
         loader.style.fontWeight = "bold";
         loader.style.zIndex = "9999";
+        loader.style.textAlign = "center";
 
         loader.innerHTML = `
-            <div class="gift-animation">🎁</div>
-            <div class="loader-animation"></div>
-            <p id="loaderMessage" style="margin-top: 15px;">Loading... Bas ek second bhai! 😂</p>
-            <p id="percentageText" style="font-size: 24px; margin-top: 10px;">0%</p>
+            <div class="waiting-animation">🤔</div>
+            <p id="loaderMessage" style="margin-top: 15px;">Kitne maasoom hokar order submit hone ka intezar kar rahe ho... 😂</p>
             <style>
-                .loader-animation {
-                    width: 50px;
-                    height: 50px;
-                    border: 6px solid rgba(255, 255, 255, 0.3);
-                    border-top-color: #FF0000;
-                    border-radius: 50%;
-                    animation: spin 1s linear infinite;
-                }
-                @keyframes spin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                }
-                .gift-animation {
+                .waiting-animation {
                     font-size: 50px;
-                    animation: bounce 1.5s infinite alternate;
+                    animation: shake 1s infinite alternate;
                 }
-                @keyframes bounce {
-                    from { transform: translateY(0); }
-                    to { transform: translateY(-15px); }
+                @keyframes shake {
+                    from { transform: rotate(-10deg); }
+                    to { transform: rotate(10deg); }
                 }
             </style>
         `;
 
         document.body.appendChild(loader);
-        console.log("✅ Red Themed Loader with Percentage Added");
+        console.log("✅ Funny Waiting Loader Added");
     }
 
     // ✅ Funny Dynamic Messages List
     let messages = [
-        "Bhai ruk ja, image upload ho rahi hai... 📸😂",
-        "Server soch raha hai: ‘Kya banda hai, phir se order de diya!’ 🤦‍♂️",
-        "Payment process ho raha hai... Bank wale bhi chill kar rahe hain! 💰🤣",
-        "Order confirm ho raha hai... Shadi fix hone jitna time nahi lagega! 💍🔥",
-        "NASA se tez data transfer ho raha hai, bas thoda patience! 🚀",
-        "Bhai, 4G thoda slow chal raha hai... Network tower ko haath jodo! 📶🙏",
-        "Order confirm ho raha hai... Tab tak ek chai pi lo! ☕",
-        "Server bhi thoda shocked hai: ‘Aaj phir order?!’ 😂",
-        "CPU garam ho gaya, par ho jayega... Bas wait! 🔥",
-        "Ho gaya bas! Ekdum finitooo! 🏁🎉"
+        "Kitne maasoom hokar order submit hone ka intezar kar rahe ho... 😂",
+        "Bas thoda sa patience, order bhi keh raha hai 'Mujhe bhi confirm hone do bhai!' 🤭",
+        "Server abhi soch raha hai: ‘Yeh banda sahi hai, roz kuch naya order daal raha hai!’ 😆",
+        "Bhai, ruk jaa... Data udne wala hai NASA se bhi tez! 🚀",
+        "Tum jitna wait kar rahe ho, server utna hi confused hai! 🫠",
+        "Order soch raha hai ‘Kya mai sach mein hone wala hoon?!’ 😳",
+        "Ruko zara, sabar karo... Yeh coding hai, magic nahi! 🧙‍♂️✨",
+        "Bas ab final confirmation ho raha hai, tab tak chai pee lo! ☕",
+        "Tum aur wait kar sakte ho, par server ke emotions nahi! 😂",
+        "Order confirm ho gaya toh treat dena bhai! 🍕"
     ];
 
-    // ✅ Change messages dynamically every 2.5 seconds
+    // ✅ Change messages dynamically every 3 seconds
     let i = 0;
     let messageInterval = setInterval(() => {
         if (document.getElementById("loaderMessage")) {
@@ -364,20 +351,7 @@ function showLoader() {
         } else {
             clearInterval(messageInterval);
         }
-    }, 2500);
-
-    // ✅ Percentage Counter Logic
-    let percent = 0;
-    let percentInterval = setInterval(() => {
-        if (document.getElementById("percentageText")) {
-            percent += Math.floor(Math.random() * 15) + 5; // Random speed
-            if (percent > 100) percent = 100;
-            document.getElementById("percentageText").textContent = `${percent}%`;
-            if (percent >= 100) clearInterval(percentInterval);
-        } else {
-            clearInterval(percentInterval);
-        }
-    }, 600);
+    }, 3000);
 }
 
 // ✅ Hide Loader Function
@@ -385,7 +359,7 @@ function hideLoader() {
     const loader = document.getElementById("customLoader");
     if (loader) {
         loader.remove();
-        console.log("✅ Red Loader Removed");
+        console.log("✅ Funny Loader Removed");
     }
 }
  // ✅ Save Order to Firebase Firestore
