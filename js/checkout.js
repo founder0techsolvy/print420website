@@ -288,8 +288,7 @@ window.location.href = "order-success.html";
   }
 });
 
-// ✅ Show Loader Function (100% Working)
-// ✅ Show Funny Loader with Real Progress Bar & Gift Animation
+// ✅ Show Funny Loader with Red Theme & Percentage Animation
 function showLoader() {
     if (!document.getElementById("customLoader")) {
         const loader = document.createElement("div");
@@ -304,45 +303,28 @@ function showLoader() {
         loader.style.flexDirection = "column";
         loader.style.alignItems = "center";
         loader.style.justifyContent = "center";
-        loader.style.color = "#fff";
-        loader.style.fontSize = "18px";
+        loader.style.color = "#FF0000";
+        loader.style.fontSize = "20px";
+        loader.style.fontWeight = "bold";
         loader.style.zIndex = "9999";
 
         loader.innerHTML = `
             <div class="gift-animation">🎁</div>
             <div class="loader-animation"></div>
-            <p id="loaderMessage" style="margin-top: 15px; font-weight: bold; color: #FFD700;">Loading... Ek minute bhai! 🤣</p>
-            <div class="progress-bar-container">
-                <div id="progressBar" class="progress-bar"></div>
-            </div>
+            <p id="loaderMessage" style="margin-top: 15px;">Loading... Bas ek second bhai! 😂</p>
+            <p id="percentageText" style="font-size: 24px; margin-top: 10px;">0%</p>
             <style>
                 .loader-animation {
                     width: 50px;
                     height: 50px;
                     border: 6px solid rgba(255, 255, 255, 0.3);
-                    border-top-color: #FFD700;
+                    border-top-color: #FF0000;
                     border-radius: 50%;
                     animation: spin 1s linear infinite;
                 }
                 @keyframes spin {
                     from { transform: rotate(0deg); }
                     to { transform: rotate(360deg); }
-                }
-                .progress-bar-container {
-                    width: 80%;
-                    max-width: 320px;
-                    height: 10px;
-                    background: rgba(255, 255, 255, 0.3);
-                    border-radius: 5px;
-                    overflow: hidden;
-                    margin-top: 15px;
-                    border: 2px solid #FFD700;
-                }
-                .progress-bar {
-                    width: 0%;
-                    height: 100%;
-                    background: linear-gradient(90deg, #FF5733, #FFD700);
-                    transition: width 0.4s ease-in-out;
                 }
                 .gift-animation {
                     font-size: 50px;
@@ -356,7 +338,7 @@ function showLoader() {
         `;
 
         document.body.appendChild(loader);
-        console.log("✅ Premium Loader with Progress & Gift Animation Added");
+        console.log("✅ Red Themed Loader with Percentage Added");
     }
 
     // ✅ Funny Dynamic Messages List
@@ -384,16 +366,16 @@ function showLoader() {
         }
     }, 2500);
 
-    // ✅ Real Progress Bar Logic
-    let progress = 0;
-    let progressInterval = setInterval(() => {
-        if (document.getElementById("progressBar")) {
-            progress += Math.floor(Math.random() * 15) + 5; // Random speed
-            if (progress > 100) progress = 100;
-            document.getElementById("progressBar").style.width = `${progress}%`;
-            if (progress >= 100) clearInterval(progressInterval);
+    // ✅ Percentage Counter Logic
+    let percent = 0;
+    let percentInterval = setInterval(() => {
+        if (document.getElementById("percentageText")) {
+            percent += Math.floor(Math.random() * 15) + 5; // Random speed
+            if (percent > 100) percent = 100;
+            document.getElementById("percentageText").textContent = `${percent}%`;
+            if (percent >= 100) clearInterval(percentInterval);
         } else {
-            clearInterval(progressInterval);
+            clearInterval(percentInterval);
         }
     }, 600);
 }
@@ -403,7 +385,7 @@ function hideLoader() {
     const loader = document.getElementById("customLoader");
     if (loader) {
         loader.remove();
-        console.log("✅ Premium Loader Removed");
+        console.log("✅ Red Loader Removed");
     }
 }
  // ✅ Save Order to Firebase Firestore
