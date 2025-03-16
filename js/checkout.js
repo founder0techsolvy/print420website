@@ -434,115 +434,72 @@ document.getElementById("placeOrderBtn").addEventListener("click", async functio
 
       theme: { color: "#FFB3B3" },
 
-      handler: async function(response) {
+      
 
-        try {
+          handler: async function(response) {
+  try {
+    if (!response.razorpay_payment_id) {
+      throw new Error("Payment failed");
+    }
+    
+    // Show loader (reuse your existing loader or create a variant for saving)
+    showLoader();
+    
+    // Upload Images to Firebase Storage (same as before)
+    const uploadImage = async (imgData, imgName) => {
+      if (!imgData.startsWith("data:image/")) return imgData;
+      
+      const blob = await fetch(imgData).then(r => r.blob());
+      const storageRef = ref(storage, `orders/${user.uid}/${Date.now()}_${imgName}`);
+      await uploadBytes(storageRef, blob);
+      return await getDownloadURL(storageRef);
+    };
 
-          if (!response.razorpay_payment_id) {
+    // Upload both images
+    const [image1Url, image2Url] = await Promise.all([
+      uploadImage(orderDetails.image1, "design1"),
+      uploadImage(orderDetails.image2 || "", "design2")
+    ]);
 
-            throw new Error("Payment failed");
+    // Optionally, update your loader progress message here before saving
+    updateLoaderMessage("Saving order details...");
 
-          }
+    // Save order with image URLs and payment status
+    await saveOrderToFirebase({
+      ...orderDetails,
+      image1: image1Url,
+      image2: image2Url || "No second image",
+      email: user.email,
+      uid: user.uid,
+      paymentId: response.razorpay_payment_id,
+      paymentStatus: "Paid",  // Payment Status Added
+      timestamp: new Date().toISOString()
+    });
 
-          
-
-          // Upload Images to Firebase Storage
-
-          const uploadImage = async (imgData, imgName) => {
-
-            if (!imgData.startsWith("data:image/")) return imgData;
-
-            
-
-            const blob = await fetch(imgData).then(r => r.blob());
-
-            const storageRef = ref(storage, `orders/${user.uid}/${Date.now()}_${imgName}`);
-
-            await uploadBytes(storageRef, blob);
-
-            return await getDownloadURL(storageRef);
-
-          };
-
-          
-
-          // Upload both images
-
-          const [image1Url, image2Url] = await Promise.all([
-
-            uploadImage(orderDetails.image1, "design1"),
-
-            uploadImage(orderDetails.image2 || "", "design2")
-
-          ]);
-
-          
-
-          // Save order with image URLs
-
-          // Save order with paymentStatus
-
-await saveOrderToFirebase({
-
-  ...orderDetails,
-
-  image1: image1Url,
-
-  image2: image2Url || "No second image",
-
-  email: user.email,
-
-  uid: user.uid,
-
-  paymentId: response.razorpay_payment_id,
-
-  paymentStatus: "Paid",  // ✅ Payment Status Added
-
-  timestamp: new Date().toISOString()
-
-});
-
-
-
-// ✅ Save Order Details in sessionStorage for order-success.html
-
-sessionStorage.setItem("paymentDetails", JSON.stringify({
-
-  orderDetails: {
-
-    name: orderDetails.name,
-
-    price: orderDetails.price
-
-  },
-
-  paymentId: response.razorpay_payment_id,
-
-  paymentStatus: "Paid"
-
-}));
-
-
-
-// ✅ Redirect to Order Success Page
-
-window.location.href = "order-success.html";
-
-          
-
-          window.location.href = "order-success.html";
-
-        } catch (error) {
-
-          alert(`Payment Failed: ${error.message}`);
-
-        } finally {
-
-          hideLoader();
-
-        }
-
+    // Save order details in sessionStorage for order-success.html
+    sessionStorage.setItem("paymentDetails", JSON.stringify({
+      orderDetails: {
+        name: orderDetails.name,
+        price: orderDetails.price
       },
+      paymentId: response.razorpay_payment_id,
+      paymentStatus: "Paid"
+    }));
+
+    // Hide the loader after the save completes
+    hideLoader();
+    
+    // Redirect to Order Success Page
+    window.location.href = "order-success.html";
+    
+  } catch (error) {
+    alert(`Payment Failed: ${error.message}`);
+    hideLoader();
+  }
+},
+
+          
+  
 
       modal: {
 
