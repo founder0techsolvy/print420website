@@ -204,7 +204,7 @@ document.getElementById("placeOrderBtn").addEventListener("click", async functio
     const amount = parseInt(orderDetails.price.replace(/[^0-9]/g, "")) * 100;
     
     const options = {
-      key: "rzp_live_gzAhFQC3LFakgZ",
+      key: "rzp_test_NfDhAFYplEhZEf",
       amount: amount,
       currency: "INR",
       name: "Print 420",
