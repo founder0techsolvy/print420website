@@ -289,8 +289,7 @@ window.location.href = "order-success.html";
 });
 
 // ✅ Show Loader Function (100% Working)
-
-// ✅ Show Funny Loader with Progress Bar
+// ✅ Show Funny Loader with Real Progress Bar & Gift Animation
 function showLoader() {
     if (!document.getElementById("customLoader")) {
         const loader = document.createElement("div");
@@ -300,7 +299,7 @@ function showLoader() {
         loader.style.left = "0";
         loader.style.width = "100vw";
         loader.style.height = "100vh";
-        loader.style.background = "rgba(0, 0, 0, 0.8)";
+        loader.style.background = "rgba(0, 0, 0, 0.9)";
         loader.style.display = "flex";
         loader.style.flexDirection = "column";
         loader.style.alignItems = "center";
@@ -310,8 +309,9 @@ function showLoader() {
         loader.style.zIndex = "9999";
 
         loader.innerHTML = `
+            <div class="gift-animation">🎁</div>
             <div class="loader-animation"></div>
-            <p id="loaderMessage" style="margin-top: 15px;">Wait kar bhai... 🤣</p>
+            <p id="loaderMessage" style="margin-top: 15px; font-weight: bold; color: #FFD700;">Loading... Ek minute bhai! 🤣</p>
             <div class="progress-bar-container">
                 <div id="progressBar" class="progress-bar"></div>
             </div>
@@ -319,8 +319,8 @@ function showLoader() {
                 .loader-animation {
                     width: 50px;
                     height: 50px;
-                    border: 5px solid rgba(255, 255, 255, 0.3);
-                    border-top-color: #FF5733;
+                    border: 6px solid rgba(255, 255, 255, 0.3);
+                    border-top-color: #FFD700;
                     border-radius: 50%;
                     animation: spin 1s linear infinite;
                 }
@@ -330,37 +330,46 @@ function showLoader() {
                 }
                 .progress-bar-container {
                     width: 80%;
-                    max-width: 300px;
-                    height: 8px;
-                    background: rgba(255, 255, 255, 0.2);
+                    max-width: 320px;
+                    height: 10px;
+                    background: rgba(255, 255, 255, 0.3);
                     border-radius: 5px;
                     overflow: hidden;
                     margin-top: 15px;
+                    border: 2px solid #FFD700;
                 }
                 .progress-bar {
                     width: 0%;
                     height: 100%;
-                    background: #FF5733;
-                    transition: width 0.5s ease-in-out;
+                    background: linear-gradient(90deg, #FF5733, #FFD700);
+                    transition: width 0.4s ease-in-out;
+                }
+                .gift-animation {
+                    font-size: 50px;
+                    animation: bounce 1.5s infinite alternate;
+                }
+                @keyframes bounce {
+                    from { transform: translateY(0); }
+                    to { transform: translateY(-15px); }
                 }
             </style>
         `;
 
         document.body.appendChild(loader);
-        console.log("✅ Funny Loader with Progress Bar Added");
+        console.log("✅ Premium Loader with Progress & Gift Animation Added");
     }
 
     // ✅ Funny Dynamic Messages List
     let messages = [
-        "Bhai ruk ja zara, image upload ho rahi hai... 😂",
-        "Server bhi soch raha hai, ‘Ab isko kya chahiye? 🤔’",
-        "Payment process ho raha hai... UPI uncle se permission le rahe hain! ⏳",
-        "Order confirm ho raha hai... Shadi ki baat pakki karne jitna time lagega! 💍🤣",
-        "Data transfer ho raha hai... NASA se bhi tej hai hamara server! 🚀",
-        "Thoda patience rakho, 4G ka bhi limit hota hai! 📶",
-        "Order final ho raha hai... Ek cutting chai pi lo tab tak! ☕",
-        "Server bol raha hai: ‘Ek minute bhai, adjust kar raha hoon!’ 😂",
-        "Bhai CPU garam ho gaya, thoda slow chalega! 🔥",
+        "Bhai ruk ja, image upload ho rahi hai... 📸😂",
+        "Server soch raha hai: ‘Kya banda hai, phir se order de diya!’ 🤦‍♂️",
+        "Payment process ho raha hai... Bank wale bhi chill kar rahe hain! 💰🤣",
+        "Order confirm ho raha hai... Shadi fix hone jitna time nahi lagega! 💍🔥",
+        "NASA se tez data transfer ho raha hai, bas thoda patience! 🚀",
+        "Bhai, 4G thoda slow chal raha hai... Network tower ko haath jodo! 📶🙏",
+        "Order confirm ho raha hai... Tab tak ek chai pi lo! ☕",
+        "Server bhi thoda shocked hai: ‘Aaj phir order?!’ 😂",
+        "CPU garam ho gaya, par ho jayega... Bas wait! 🔥",
         "Ho gaya bas! Ekdum finitooo! 🏁🎉"
     ];
 
@@ -375,17 +384,18 @@ function showLoader() {
         }
     }, 2500);
 
-    // ✅ Simulate Progress Bar Fill
+    // ✅ Real Progress Bar Logic
     let progress = 0;
     let progressInterval = setInterval(() => {
         if (document.getElementById("progressBar")) {
-            progress += 10; // Increase progress by 10% each step
+            progress += Math.floor(Math.random() * 15) + 5; // Random speed
+            if (progress > 100) progress = 100;
             document.getElementById("progressBar").style.width = `${progress}%`;
             if (progress >= 100) clearInterval(progressInterval);
         } else {
             clearInterval(progressInterval);
         }
-    }, 800);
+    }, 600);
 }
 
 // ✅ Hide Loader Function
@@ -393,7 +403,7 @@ function hideLoader() {
     const loader = document.getElementById("customLoader");
     if (loader) {
         loader.remove();
-        console.log("✅ Funny Loader Removed");
+        console.log("✅ Premium Loader Removed");
     }
 }
  // ✅ Save Order to Firebase Firestore
