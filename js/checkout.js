@@ -410,7 +410,7 @@ document.getElementById("placeOrderBtn").addEventListener("click", async functio
 
     const options = {
 
-      key: "rzp_live_gzAhFQC3LFakgZ",
+      key: "rzp_test_NfDhAFYplEhZEf",
 
       amount: amount,
 
