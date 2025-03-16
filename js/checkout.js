@@ -290,28 +290,31 @@ window.location.href = "order-success.html";
 
 // ✅ Show Loader Function (100% Working)
 
-// ✅ Show Funny Loader Function
+// ✅ Show Funny Loader with Progress Bar
 function showLoader() {
-  if (!document.getElementById("customLoader")) {
-    const loader = document.createElement("div");
-    loader.id = "customLoader";
-    loader.style.position = "fixed";
-    loader.style.top = "0";
-    loader.style.left = "0";
-    loader.style.width = "100vw";
-    loader.style.height = "100vh";
-    loader.style.background = "rgba(0, 0, 0, 0.8)";
-    loader.style.display = "flex";
-    loader.style.flexDirection = "column";
-    loader.style.alignItems = "center";
-    loader.style.justifyContent = "center";
-    loader.style.color = "#fff";
-    loader.style.fontSize = "18px";
-    loader.style.zIndex = "9999";
-    
-    loader.innerHTML = `
+    if (!document.getElementById("customLoader")) {
+        const loader = document.createElement("div");
+        loader.id = "customLoader";
+        loader.style.position = "fixed";
+        loader.style.top = "0";
+        loader.style.left = "0";
+        loader.style.width = "100vw";
+        loader.style.height = "100vh";
+        loader.style.background = "rgba(0, 0, 0, 0.8)";
+        loader.style.display = "flex";
+        loader.style.flexDirection = "column";
+        loader.style.alignItems = "center";
+        loader.style.justifyContent = "center";
+        loader.style.color = "#fff";
+        loader.style.fontSize = "18px";
+        loader.style.zIndex = "9999";
+
+        loader.innerHTML = `
             <div class="loader-animation"></div>
             <p id="loaderMessage" style="margin-top: 15px;">Wait kar bhai... 🤣</p>
+            <div class="progress-bar-container">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
             <style>
                 .loader-animation {
                     width: 50px;
@@ -325,48 +328,74 @@ function showLoader() {
                     from { transform: rotate(0deg); }
                     to { transform: rotate(360deg); }
                 }
+                .progress-bar-container {
+                    width: 80%;
+                    max-width: 300px;
+                    height: 8px;
+                    background: rgba(255, 255, 255, 0.2);
+                    border-radius: 5px;
+                    overflow: hidden;
+                    margin-top: 15px;
+                }
+                .progress-bar {
+                    width: 0%;
+                    height: 100%;
+                    background: #FF5733;
+                    transition: width 0.5s ease-in-out;
+                }
             </style>
         `;
-    
-    document.body.appendChild(loader);
-    console.log("✅ Funny Loader Added");
-  }
-  
-  // ✅ Funny Dynamic Messages List
-  let messages = [
-    "Bhai ruk ja zara, image upload ho rahi hai... 😂",
-    "Server bhi soch raha hai, ‘Ab isko kya chahiye? 🤔’",
-    "Payment process ho raha hai... UPI uncle se permission le rahe hain! ⏳",
-    "Order confirm ho raha hai... Shadi ki baat pakki karne jitna time lagega! 💍🤣",
-    "Data transfer ho raha hai... NASA se bhi tej hai hamara server! 🚀",
-    "Thoda patience rakho, 4G ka bhi limit hota hai! 📶",
-    "Order final ho raha hai... Ek cutting chai pi lo tab tak! ☕",
-    "Server bol raha hai: ‘Ek minute bhai, adjust kar raha hoon!’ 😂",
-    "Bhai CPU garam ho gaya, thoda slow chalega! 🔥",
-    "Ho gaya bas! Ekdum finitooo! 🏁🎉"
-  ];
-  
-  // ✅ Change messages dynamically every 2.5 seconds
-  let i = 0;
-  let messageInterval = setInterval(() => {
-    if (document.getElementById("loaderMessage")) {
-      document.getElementById("loaderMessage").textContent = messages[i];
-      i = (i + 1) % messages.length;
-    } else {
-      clearInterval(messageInterval);
+
+        document.body.appendChild(loader);
+        console.log("✅ Funny Loader with Progress Bar Added");
     }
-  }, 2500);
+
+    // ✅ Funny Dynamic Messages List
+    let messages = [
+        "Bhai ruk ja zara, image upload ho rahi hai... 😂",
+        "Server bhi soch raha hai, ‘Ab isko kya chahiye? 🤔’",
+        "Payment process ho raha hai... UPI uncle se permission le rahe hain! ⏳",
+        "Order confirm ho raha hai... Shadi ki baat pakki karne jitna time lagega! 💍🤣",
+        "Data transfer ho raha hai... NASA se bhi tej hai hamara server! 🚀",
+        "Thoda patience rakho, 4G ka bhi limit hota hai! 📶",
+        "Order final ho raha hai... Ek cutting chai pi lo tab tak! ☕",
+        "Server bol raha hai: ‘Ek minute bhai, adjust kar raha hoon!’ 😂",
+        "Bhai CPU garam ho gaya, thoda slow chalega! 🔥",
+        "Ho gaya bas! Ekdum finitooo! 🏁🎉"
+    ];
+
+    // ✅ Change messages dynamically every 2.5 seconds
+    let i = 0;
+    let messageInterval = setInterval(() => {
+        if (document.getElementById("loaderMessage")) {
+            document.getElementById("loaderMessage").textContent = messages[i];
+            i = (i + 1) % messages.length;
+        } else {
+            clearInterval(messageInterval);
+        }
+    }, 2500);
+
+    // ✅ Simulate Progress Bar Fill
+    let progress = 0;
+    let progressInterval = setInterval(() => {
+        if (document.getElementById("progressBar")) {
+            progress += 10; // Increase progress by 10% each step
+            document.getElementById("progressBar").style.width = `${progress}%`;
+            if (progress >= 100) clearInterval(progressInterval);
+        } else {
+            clearInterval(progressInterval);
+        }
+    }, 800);
 }
 
 // ✅ Hide Loader Function
 function hideLoader() {
-  const loader = document.getElementById("customLoader");
-  if (loader) {
-    loader.remove();
-    console.log("✅ Funny Loader Removed");
-  }
+    const loader = document.getElementById("customLoader");
+    if (loader) {
+        loader.remove();
+        console.log("✅ Funny Loader Removed");
+    }
 }
-
  // ✅ Save Order to Firebase Firestore
 async function saveOrderToFirebase(order) {
 
