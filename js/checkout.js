@@ -288,7 +288,7 @@ window.location.href = "order-success.html";
   }
 });
 
-// ✅ Show Funny Loader with Animation
+ // ✅ Show Funny Loader with Center Emoji & Spinning Ring
 function showLoader() {
     if (!document.getElementById("customLoader")) {
         const loader = document.createElement("div");
@@ -310,22 +310,49 @@ function showLoader() {
         loader.style.textAlign = "center";
 
         loader.innerHTML = `
-            <div class="waiting-animation">🤔</div>
+            <div class="spinner-container">
+                <div class="spinner"></div>
+                <span class="emoji">😂</span>
+            </div>
             <p id="loaderMessage" style="margin-top: 15px;">Kitne maasoom hokar order submit hone ka intezar kar rahe ho... 😂</p>
+            
             <style>
-                .waiting-animation {
-                    font-size: 50px;
-                    animation: shake 1s infinite alternate;
+                .spinner-container {
+                    position: relative;
+                    width: 80px;
+                    height: 80px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
                 }
-                @keyframes shake {
-                    from { transform: rotate(-10deg); }
-                    to { transform: rotate(10deg); }
+
+                .emoji {
+                    font-size: 40px;
+                    position: absolute;
+                    z-index: 2;
+                }
+
+                .spinner {
+                    width: 80px;
+                    height: 80px;
+                    border: 5px solid transparent;
+                    border-top: 5px solid #FF0000;
+                    border-bottom: 5px solid #FF0000;
+                    border-radius: 50%;
+                    position: absolute;
+                    animation: spin 1s linear infinite;
+                    z-index: 1;
+                }
+
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
                 }
             </style>
         `;
 
         document.body.appendChild(loader);
-        console.log("✅ Funny Waiting Loader Added");
+        console.log("✅ Funny Emoji Spinner Loader Added");
     }
 
     // ✅ Funny Dynamic Messages List
