@@ -291,12 +291,81 @@ window.location.href = "order-success.html";
  
 
 
+// ✅ Show Funny Loader Function (Red-White Theme)
+function showLoader() {
+    if (!document.getElementById("customLoader")) {
+        const loader = document.createElement("div");
+        loader.id = "customLoader";
+        loader.style.position = "fixed";
+        loader.style.top = "0";
+        loader.style.left = "0";
+        loader.style.width = "100vw";
+        loader.style.height = "100vh";
+        loader.style.background = "rgba(255, 255, 255, 0.95)";
+        loader.style.display = "flex";
+        loader.style.flexDirection = "column";
+        loader.style.alignItems = "center";
+        loader.style.justifyContent = "center";
+        loader.style.color = "#d80000";
+        loader.style.fontSize = "18px";
+        loader.style.fontWeight = "bold";
+        loader.style.zIndex = "9999";
+
+        loader.innerHTML = `
+            <div class="loader-animation"></div>
+            <p id="loaderMessage" style="margin-top: 15px;">Wait kar bhai... 🤣</p>
+            <style>
+                .loader-animation {
+                    width: 50px;
+                    height: 50px;
+                    border: 5px solid rgba(216, 0, 0, 0.3);
+                    border-top-color: #d80000;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                }
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+            </style>
+        `;
+
+        document.body.appendChild(loader);
+        console.log("✅ Funny Loader Added (Red-White Theme)");
+    }
+
+    // ✅ Funny Dynamic Messages List
+    let messages = [
+        "Bhai ruk ja zara, image upload ho rahi hai... 😂",
+        "Server bhi soch raha hai, ‘Ab isko kya chahiye? 🤔’",
+        "Payment process ho raha hai... UPI uncle se permission le rahe hain! ⏳",
+        "Order confirm ho raha hai... Shadi ki baat pakki karne jitna time lagega! 💍🤣",
+        "Data transfer ho raha hai... NASA se bhi tej hai hamara server! 🚀",
+        "Thoda patience rakho, 4G ka bhi limit hota hai! 📶",
+        "Order final ho raha hai... Ek cutting chai pi lo tab tak! ☕",
+        "Server bol raha hai: ‘Ek minute bhai, adjust kar raha hoon!’ 😂",
+        "Bhai CPU garam ho gaya, thoda slow chalega! 🔥",
+        "Ho gaya bas! Ekdum finitooo! 🏁🎉"
+    ];
+
+    // ✅ Change messages dynamically every 2.5 seconds
+    let i = 0;
+    let messageInterval = setInterval(() => {
+        if (document.getElementById("loaderMessage")) {
+            document.getElementById("loaderMessage").textContent = messages[i];
+            i = (i + 1) % messages.length;
+        } else {
+            clearInterval(messageInterval);
+        }
+    }, 2500);
+}
+
 // ✅ Hide Loader Function
 function hideLoader() {
     const loader = document.getElementById("customLoader");
     if (loader) {
         loader.remove();
-        console.log("✅ Funny Loader Removed");
+        console.log("✅ Funny Loader Removed (Red-White Theme)");
     }
 }
  // ✅ Save Order to Firebase Firestore
