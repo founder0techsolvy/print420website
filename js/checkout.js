@@ -222,33 +222,51 @@ document.getElementById("placeOrderBtn").addEventListener("click", async functio
             throw new Error("Payment failed");
           }
           
-          // Upload Images to Firebase Storage
           const uploadImage = async (imgData, imgName) => {
-            if (!imgData.startsWith("data:image/")) return imgData;
-            
-            const blob = await fetch(imgData).then(r => r.blob());
-            const storageRef = ref(storage, `orders/${user.uid}/${Date.now()}_${imgName}`);
-            await uploadBytes(storageRef, blob);
-            return await getDownloadURL(storageRef);
-          };
-          
-          // Upload both images
-          const [image1Url, image2Url] = await Promise.all([
-            uploadImage(orderDetails.image1, "design1"),
-            uploadImage(orderDetails.image2 || "", "design2")
-          ]);
-          
+    if (!imgData.startsWith("data:image/")) return imgData;
+
+    const blob = await fetch(imgData).then(r => r.blob());
+    const storageRef = ref(storage, `orders/${auth.currentUser.uid}/${Date.now()}_${imgName}`);
+    
+    // ✅ Use `uploadBytesResumable` for progress tracking
+    const uploadTask = uploadBytesResumable(storageRef, blob);
+
+    return new Promise((resolve, reject) => {
+        uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+                // ✅ Calculate Progress Percentage
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                updateProgressBar(progress.toFixed(0)); // ✅ Update Progress Bar
+            },
+            (error) => {
+                console.error("❌ Upload failed:", error);
+                reject(error);
+            },
+            async () => {
+                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                resolve(downloadURL);
+            }
+        );
+    });
+};
           // Save order with image URLs
           // Save order with paymentStatus
+const [image1Url, image2Url] = await Promise.all([
+    uploadImage(orderDetails.image1, "design1"),
+    uploadImage(orderDetails.image2 || "", "design2")
+]);
+
+// ✅ Save Order to Firestore
 await saveOrderToFirebase({
-  ...orderDetails,
-  image1: image1Url,
-  image2: image2Url || "No second image",
-  email: user.email,
-  uid: user.uid,
-  paymentId: response.razorpay_payment_id,
-  paymentStatus: "Paid",  // ✅ Payment Status Added
-  timestamp: new Date().toISOString()
+    ...orderDetails,
+    image1: image1Url,
+    image2: image2Url || "No second image",
+    email: user.email,
+    uid: user.uid,
+    paymentId: response.razorpay_payment_id,
+    paymentStatus: "Paid",
+    timestamp: new Date().toISOString()
 });
 
 // ✅ Save Order Details in sessionStorage for order-success.html
