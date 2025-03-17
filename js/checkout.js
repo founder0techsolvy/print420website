@@ -299,23 +299,25 @@ function showLoader() {
                 loader.style.left = "0";
                 loader.style.width = "100vw";
                 loader.style.height = "100vh";
-                loader.style.background = "rgba(255, 255, 255, 0.95)";
+                loader.style.background = "#ffffff";
                 loader.style.display = "flex";
                 loader.style.flexDirection = "column";
                 loader.style.alignItems = "center";
                 loader.style.justifyContent = "center";
-                loader.style.color = "#d80000";
+                loader.style.color = "#D32F2F";
                 loader.style.fontSize = "18px";
                 loader.style.fontWeight = "bold";
                 loader.style.zIndex = "9999";
 
                 loader.innerHTML = `
-                    <div class="loader-animation"></div>
-                    <p id="loaderMessage" style="margin-top: 15px;">Wait kar bhai... 🤣</p>
+                    <div class="plane-container">
+                        ✈️
+                    </div>
+                    <p id="loaderMessage" style="margin-top: 15px;">Loading... 🚀</p>
                     <div class="progress-container" style="
                         width: 80%;
-                        background: #fff;
-                        border: 2px solid #d80000;
+                        background: #f8d7da;
+                        border: 2px solid #D32F2F;
                         border-radius: 10px;
                         margin-top: 20px;
                         height: 25px;
@@ -324,7 +326,7 @@ function showLoader() {
                         <div class="progress-bar" id="progressBar" style="
                             height: 100%;
                             width: 0%;
-                            background: #d80000;
+                            background: #D32F2F;
                             text-align: center;
                             line-height: 25px;
                             color: #fff;
@@ -336,40 +338,30 @@ function showLoader() {
                         ">0%</div>
                     </div>
                     <style>
-                        .loader-animation {
-                            width: 50px;
-                            height: 50px;
-                            border: 5px solid rgba(216, 0, 0, 0.3);
-                            border-top-color: #d80000;
-                            border-radius: 50%;
-                            animation: spin 1s linear infinite;
+                        .plane-container {
+                            font-size: 40px;
+                            animation: fly 2s linear infinite alternate;
                         }
-                        @keyframes spin {
-                            from { transform: rotate(0deg); }
-                            to { transform: rotate(360deg); }
+                        @keyframes fly {
+                            0% { transform: translateX(-50px) translateY(0px) rotate(0deg); }
+                            50% { transform: translateX(50px) translateY(-20px) rotate(10deg); }
+                            100% { transform: translateX(100px) translateY(-40px) rotate(15deg); }
                         }
                     </style>
                 `;
 
                 document.body.appendChild(loader);
-                console.log("✅ Funny Loader Added (Red-White Theme)");
+                console.log("✅ Paper Plane Loader Added");
             }
 
-            // ✅ Funny Dynamic Messages List
             let messages = [
-                "Bhai ruk ja zara, image upload ho rahi hai... 😂",
-                "Server bhi soch raha hai, ‘Ab isko kya chahiye? 🤔’",
-                "Payment process ho raha hai... UPI uncle se permission le rahe hain! ⏳",
-                "Order confirm ho raha hai... Shadi ki baat pakki karne jitna time lagega! 💍🤣",
-                "Data transfer ho raha hai... NASA se bhi tej hai hamara server! 🚀",
-                "Thoda patience rakho, 4G ka bhi limit hota hai! 📶",
-                "Order final ho raha hai... Ek cutting chai pi lo tab tak! ☕",
-                "Server bol raha hai: ‘Ek minute bhai, adjust kar raha hoon!’ 😂",
-                "Bhai CPU garam ho gaya, thoda slow chalega! 🔥",
-                "Ho gaya bas! Ekdum finitooo! 🏁🎉"
+                "Bhai ruk ja, plane runway pe hai... ✈️",
+                "Speed badh rahi hai... Thoda aur wait! 🚀",
+                "Engine full throttle... Ready to takeoff! 🔥",
+                "Ab bas hawa mein uddne wala hai! ☁️",
+                "Bhai plane upar chala gaya... Upload done! ✅"
             ];
 
-            // ✅ Change messages dynamically every 2.5 seconds
             let i = 0;
             let messageInterval = setInterval(() => {
                 const messageElem = document.getElementById("loaderMessage");
@@ -379,14 +371,13 @@ function showLoader() {
                 } else {
                     clearInterval(messageInterval);
                 }
-            }, 2500);
+            }, 2000);
         }
 
-        // ✅ Update Progress Bar Function
         function updateProgressBar(percentage) {
             const progressBar = document.getElementById("progressBar");
             if (progressBar) {
-                percentage = Math.min(100, Math.max(0, percentage)); // Clamp between 0 and 100
+                percentage = Math.min(100, Math.max(0, percentage));
                 progressBar.style.width = percentage + "%";
                 progressBar.textContent = percentage + "%";
             } else {
@@ -394,33 +385,25 @@ function showLoader() {
             }
         }
 
-        // ✅ Hide Loader Function
         function hideLoader() {
             const loader = document.getElementById("customLoader");
             if (loader) {
                 loader.remove();
-                console.log("✅ Funny Loader Removed (Red-White Theme)");
+                console.log("✅ Paper Plane Loader Removed");
             }
         }
 
-        // ✅ Start Loader & Automatically Update Progress
         function startLoading() {
             showLoader();
             let progress = 0;
             let interval = setInterval(() => {
-                progress += 10;
+                progress += 20;
                 updateProgressBar(progress);
                 if (progress >= 100) {
                     clearInterval(interval);
-                    setTimeout(() => hideLoader(), 1000); // 1 sec baad loader hide
+                    setTimeout(() => hideLoader(), 1000);
                 }
-            }, 500);
-        }
-
-        // ✅ Update Progress Button Function (Manually)
-        function updateProgress() {
-            let randomProgress = Math.floor(Math.random() * 100);
-            updateProgressBar(randomProgress);
+            }, 800);
         }
  // ✅ Save Order to Firebase Firestore
 async function saveOrderToFirebase(order) {
