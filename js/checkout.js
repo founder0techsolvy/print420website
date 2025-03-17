@@ -290,129 +290,138 @@ window.location.href = "order-success.html";
 
  
 
-
-// ✅ Show Funny Loader Function (Red-White Theme) with Progress Bar
 function showLoader() {
-    if (!document.getElementById("customLoader")) {
-        const loader = document.createElement("div");
-        loader.id = "customLoader";
-        loader.style.position = "fixed";
-        loader.style.top = "0";
-        loader.style.left = "0";
-        loader.style.width = "100vw";
-        loader.style.height = "100vh";
-        loader.style.background = "rgba(255, 255, 255, 0.95)";
-        loader.style.display = "flex";
-        loader.style.flexDirection = "column";
-        loader.style.alignItems = "center";
-        loader.style.justifyContent = "center";
-        loader.style.color = "#d80000";
-        loader.style.fontSize = "18px";
-        loader.style.fontWeight = "bold";
-        loader.style.zIndex = "9999";
+            if (!document.getElementById("customLoader")) {
+                const loader = document.createElement("div");
+                loader.id = "customLoader";
+                loader.style.position = "fixed";
+                loader.style.top = "0";
+                loader.style.left = "0";
+                loader.style.width = "100vw";
+                loader.style.height = "100vh";
+                loader.style.background = "rgba(255, 255, 255, 0.95)";
+                loader.style.display = "flex";
+                loader.style.flexDirection = "column";
+                loader.style.alignItems = "center";
+                loader.style.justifyContent = "center";
+                loader.style.color = "#d80000";
+                loader.style.fontSize = "18px";
+                loader.style.fontWeight = "bold";
+                loader.style.zIndex = "9999";
 
-        loader.innerHTML = `
-            <div class="loader-animation"></div>
-            <p id="loaderMessage" style="margin-top: 15px;">Wait kar bhai... 🤣</p>
-            <div class="progress-container" style="
-                width: 80%;
-                background: #fff;
-                border: 2px solid #d80000;
-                border-radius: 10px;
-                margin-top: 20px;
-                height: 25px;
-                overflow: hidden;
-            ">
-                <div class="progress-bar" id="progressBar" style="
-                    height: 100%;
-                    width: 0%;
-                    background: #d80000;
-                    text-align: center;
-                    line-height: 25px;
-                    color: #fff;
-                    transition: width 0.3s ease;
-                ">0%</div>
-            </div>
-            <style>
-                .loader-animation {
-                    width: 50px;
-                    height: 50px;
-                    border: 5px solid rgba(216, 0, 0, 0.3);
-                    border-top-color: #d80000;
-                    border-radius: 50%;
-                    animation: spin 1s linear infinite;
+                loader.innerHTML = `
+                    <div class="loader-animation"></div>
+                    <p id="loaderMessage" style="margin-top: 15px;">Wait kar bhai... 🤣</p>
+                    <div class="progress-container" style="
+                        width: 80%;
+                        background: #fff;
+                        border: 2px solid #d80000;
+                        border-radius: 10px;
+                        margin-top: 20px;
+                        height: 25px;
+                        overflow: hidden;
+                    ">
+                        <div class="progress-bar" id="progressBar" style="
+                            height: 100%;
+                            width: 0%;
+                            background: #d80000;
+                            text-align: center;
+                            line-height: 25px;
+                            color: #fff;
+                            font-weight: bold;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            transition: width 0.3s ease;
+                        ">0%</div>
+                    </div>
+                    <style>
+                        .loader-animation {
+                            width: 50px;
+                            height: 50px;
+                            border: 5px solid rgba(216, 0, 0, 0.3);
+                            border-top-color: #d80000;
+                            border-radius: 50%;
+                            animation: spin 1s linear infinite;
+                        }
+                        @keyframes spin {
+                            from { transform: rotate(0deg); }
+                            to { transform: rotate(360deg); }
+                        }
+                    </style>
+                `;
+
+                document.body.appendChild(loader);
+                console.log("✅ Funny Loader Added (Red-White Theme)");
+            }
+
+            // ✅ Funny Dynamic Messages List
+            let messages = [
+                "Bhai ruk ja zara, image upload ho rahi hai... 😂",
+                "Server bhi soch raha hai, ‘Ab isko kya chahiye? 🤔’",
+                "Payment process ho raha hai... UPI uncle se permission le rahe hain! ⏳",
+                "Order confirm ho raha hai... Shadi ki baat pakki karne jitna time lagega! 💍🤣",
+                "Data transfer ho raha hai... NASA se bhi tej hai hamara server! 🚀",
+                "Thoda patience rakho, 4G ka bhi limit hota hai! 📶",
+                "Order final ho raha hai... Ek cutting chai pi lo tab tak! ☕",
+                "Server bol raha hai: ‘Ek minute bhai, adjust kar raha hoon!’ 😂",
+                "Bhai CPU garam ho gaya, thoda slow chalega! 🔥",
+                "Ho gaya bas! Ekdum finitooo! 🏁🎉"
+            ];
+
+            // ✅ Change messages dynamically every 2.5 seconds
+            let i = 0;
+            let messageInterval = setInterval(() => {
+                const messageElem = document.getElementById("loaderMessage");
+                if (messageElem) {
+                    messageElem.textContent = messages[i];
+                    i = (i + 1) % messages.length;
+                } else {
+                    clearInterval(messageInterval);
                 }
-                @keyframes spin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                }
-            </style>
-        `;
-
-        document.body.appendChild(loader);
-        console.log("✅ Funny Loader Added (Red-White Theme)");
-    }
-
-    // ✅ Funny Dynamic Messages List
-    let messages = [
-        "Bhai ruk ja zara, image upload ho rahi hai... 😂",
-        "Server bhi soch raha hai, ‘Ab isko kya chahiye? 🤔’",
-        "Payment process ho raha hai... UPI uncle se permission le rahe hain! ⏳",
-        "Order confirm ho raha hai... Shadi ki baat pakki karne jitna time lagega! 💍🤣",
-        "Data transfer ho raha hai... NASA se bhi tej hai hamara server! 🚀",
-        "Thoda patience rakho, 4G ka bhi limit hota hai! 📶",
-        "Order final ho raha hai... Ek cutting chai pi lo tab tak! ☕",
-        "Server bol raha hai: ‘Ek minute bhai, adjust kar raha hoon!’ 😂",
-        "Bhai CPU garam ho gaya, thoda slow chalega! 🔥",
-        "Ho gaya bas! Ekdum finitooo! 🏁🎉"
-    ];
-
-    // ✅ Change messages dynamically every 2.5 seconds
-    let i = 0;
-    let messageInterval = setInterval(() => {
-        const messageElem = document.getElementById("loaderMessage");
-        if (messageElem) {
-            messageElem.textContent = messages[i];
-            i = (i + 1) % messages.length;
-        } else {
-            clearInterval(messageInterval);
+            }, 2500);
         }
-    }, 2500);
-}
 
-// ✅ Update Progress Bar Function
-// percentage should be a number between 0 and 100
-function updateProgressBar(percentage) {
-    const progressBar = document.getElementById("progressBar");
-    if (progressBar) {
-        percentage = Math.min(100, Math.max(0, percentage)); // Clamp between 0 and 100
-        progressBar.style.width = percentage + "%";
-        progressBar.textContent = percentage + "%";
-    }
-}
+        // ✅ Update Progress Bar Function
+        function updateProgressBar(percentage) {
+            const progressBar = document.getElementById("progressBar");
+            if (progressBar) {
+                percentage = Math.min(100, Math.max(0, percentage)); // Clamp between 0 and 100
+                progressBar.style.width = percentage + "%";
+                progressBar.textContent = percentage + "%";
+            } else {
+                console.error("❌ Progress bar not found!");
+            }
+        }
 
-// ✅ Hide Loader Function
-function hideLoader() {
-    const loader = document.getElementById("customLoader");
-    if (loader) {
-        loader.remove();
-        console.log("✅ Funny Loader Removed (Red-White Theme)");
-    }
-}
+        // ✅ Hide Loader Function
+        function hideLoader() {
+            const loader = document.getElementById("customLoader");
+            if (loader) {
+                loader.remove();
+                console.log("✅ Funny Loader Removed (Red-White Theme)");
+            }
+        }
 
-// Example Usage:
-// Uncomment the following lines to test the loader with progress simulation
+        // ✅ Start Loader & Automatically Update Progress
+        function startLoading() {
+            showLoader();
+            let progress = 0;
+            let interval = setInterval(() => {
+                progress += 10;
+                updateProgressBar(progress);
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => hideLoader(), 1000); // 1 sec baad loader hide
+                }
+            }, 500);
+        }
 
-// showLoader();
-// let progress = 0;
-// const progressInterval = setInterval(() => {
-//     progress += 5;
-//     updateProgressBar(progress);
-//     if (progress >= 100) {
-//         clearInterval(progressInterval);
-//         setTimeout(hideLoader, 500);
-//     }
-// }, 500);
+        // ✅ Update Progress Button Function (Manually)
+        function updateProgress() {
+            let randomProgress = Math.floor(Math.random() * 100);
+            updateProgressBar(randomProgress);
+        }
  // ✅ Save Order to Firebase Firestore
 async function saveOrderToFirebase(order) {
 
