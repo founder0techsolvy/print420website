@@ -291,7 +291,7 @@ window.location.href = "order-success.html";
  
 
 
-// ✅ Show Funny Loader Function (Red-White Theme)
+// ✅ Show Funny Loader Function (Red-White Theme) with Progress Bar
 function showLoader() {
     if (!document.getElementById("customLoader")) {
         const loader = document.createElement("div");
@@ -314,6 +314,25 @@ function showLoader() {
         loader.innerHTML = `
             <div class="loader-animation"></div>
             <p id="loaderMessage" style="margin-top: 15px;">Wait kar bhai... 🤣</p>
+            <div class="progress-container" style="
+                width: 80%;
+                background: #fff;
+                border: 2px solid #d80000;
+                border-radius: 10px;
+                margin-top: 20px;
+                height: 25px;
+                overflow: hidden;
+            ">
+                <div class="progress-bar" id="progressBar" style="
+                    height: 100%;
+                    width: 0%;
+                    background: #d80000;
+                    text-align: center;
+                    line-height: 25px;
+                    color: #fff;
+                    transition: width 0.3s ease;
+                ">0%</div>
+            </div>
             <style>
                 .loader-animation {
                     width: 50px;
@@ -351,13 +370,25 @@ function showLoader() {
     // ✅ Change messages dynamically every 2.5 seconds
     let i = 0;
     let messageInterval = setInterval(() => {
-        if (document.getElementById("loaderMessage")) {
-            document.getElementById("loaderMessage").textContent = messages[i];
+        const messageElem = document.getElementById("loaderMessage");
+        if (messageElem) {
+            messageElem.textContent = messages[i];
             i = (i + 1) % messages.length;
         } else {
             clearInterval(messageInterval);
         }
     }, 2500);
+}
+
+// ✅ Update Progress Bar Function
+// percentage should be a number between 0 and 100
+function updateProgressBar(percentage) {
+    const progressBar = document.getElementById("progressBar");
+    if (progressBar) {
+        percentage = Math.min(100, Math.max(0, percentage)); // Clamp between 0 and 100
+        progressBar.style.width = percentage + "%";
+        progressBar.textContent = percentage + "%";
+    }
 }
 
 // ✅ Hide Loader Function
@@ -368,6 +399,20 @@ function hideLoader() {
         console.log("✅ Funny Loader Removed (Red-White Theme)");
     }
 }
+
+// Example Usage:
+// Uncomment the following lines to test the loader with progress simulation
+
+// showLoader();
+// let progress = 0;
+// const progressInterval = setInterval(() => {
+//     progress += 5;
+//     updateProgressBar(progress);
+//     if (progress >= 100) {
+//         clearInterval(progressInterval);
+//         setTimeout(hideLoader, 500);
+//     }
+// }, 500);
  // ✅ Save Order to Firebase Firestore
 async function saveOrderToFirebase(order) {
 
