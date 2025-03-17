@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js"; // Add Storage import
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"; // Add Storage import
 
 // ✅ Firebase Configuration
 
@@ -222,25 +222,22 @@ document.getElementById("placeOrderBtn").addEventListener("click", async functio
             throw new Error("Payment failed");
           }
           
-          const uploadImage = async (imgData, imgName) => {
-    if (!imgData.startsWith("data:image/")) return imgData;
+          const uploadImage = (imgData, imgName) => {
+    return new Promise(async (resolve, reject) => {
+        if (!imgData.startsWith("data:image/")) return resolve(imgData);
 
-    const blob = await fetch(imgData).then(r => r.blob());
-    const storageRef = ref(storage, `orders/${auth.currentUser.uid}/${Date.now()}_${imgName}`);
-    
-    // ✅ Use `uploadBytesResumable` for progress tracking
-    const uploadTask = uploadBytesResumable(storageRef, blob);
+        const blob = await fetch(imgData).then(r => r.blob());
+        const storageRef = ref(storage, `orders/${user.uid}/${Date.now()}_${imgName}`);
 
-    return new Promise((resolve, reject) => {
-        uploadTask.on(
-            "state_changed",
+        const uploadTask = uploadBytesResumable(storageRef, blob);
+
+        uploadTask.on("state_changed",
             (snapshot) => {
-                // ✅ Calculate Progress Percentage
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                updateProgressBar(progress.toFixed(0)); // ✅ Update Progress Bar
+                updateProgressBar(progress); // Update progress bar
             },
             (error) => {
-                console.error("❌ Upload failed:", error);
+                console.error("Upload Error:", error);
                 reject(error);
             },
             async () => {
